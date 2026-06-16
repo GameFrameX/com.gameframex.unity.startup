@@ -1,3 +1,14 @@
+# 1.0.0 (2026-06-16)
+
+
+### Features
+
+* **docs:** 为 Patch/Startup procedures 添加 XML 文档注释 ([b9020cf](https://github.com/gameframex/com.gameframex.unity.startup/commit/b9020cf894ac8ac8b264ad001711436608fe4af1))
+* **docs:** 为 Startup procedures 添加 XML 文档注释 ([8c866bd](https://github.com/gameframex/com.gameframex.unity.startup/commit/8c866bd17dc048c824cac68570182fc49c63ecce))
+* **http:** 添加 HTTP 参数相关接口的 XML 文档注释 ([fdc96cc](https://github.com/gameframex/com.gameframex.unity.startup/commit/fdc96cc5b719e62fbe6da3426ff7ca84c1065db7))
+* initial commit ([62cb164](https://github.com/gameframex/com.gameframex.unity.startup/commit/62cb1646ab5059eb65e4ba5d48d0ba86c26a51be))
+* **startup:** 新增网络缓存工具类 ([bf87c22](https://github.com/gameframex/com.gameframex.unity.startup/commit/bf87c225c0b643106dd4395ad5e1a011779ed329))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
