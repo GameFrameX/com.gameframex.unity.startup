@@ -12,8 +12,15 @@ using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
 {
+    /// <summary>
+    /// 获取全局配置信息流程。使用 URL 故障转移机制从服务器获取全局配置信息。
+    /// </summary>
+    /// <remarks>
+    /// Get global info state procedure. Retrieves global configuration from server using URL failover mechanism.
+    /// </remarks>
     public sealed class ProcedureGetGlobalInfoState : ProcedureBase
     {
+        /// <inheritdoc />
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
@@ -35,6 +42,14 @@ namespace GameFrameX.Startup.Runtime
             await GetGlobalInfoAsync(procedureOwner);
         }
 
+        /// <summary>
+        /// 异步获取全局配置信息。
+        /// </summary>
+        /// <remarks>
+        /// Asynchronously retrieves global configuration using URL failover runner. Updates global config on success.
+        /// </remarks>
+        /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
+        /// <returns>获取完成的协程 / Retrieval completion coroutine</returns>
         private async UniTask GetGlobalInfoAsync(IFsm<IProcedureManager> procedureOwner)
         {
             var options = StartupProcedureUtility.GetOptions(procedureOwner);

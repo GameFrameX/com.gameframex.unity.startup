@@ -15,8 +15,15 @@ using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
 {
+    /// <summary>
+    /// 获取 App 版本信息流程。向服务器请求 App 版本信息并检查是否需要升级。
+    /// </summary>
+    /// <remarks>
+    /// Get app version info state procedure. Requests app version info from server and checks if upgrade is required.
+    /// </remarks>
     public sealed class ProcedureGetAppVersionInfoState : ProcedureBase
     {
+        /// <inheritdoc />
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
@@ -31,6 +38,14 @@ namespace GameFrameX.Startup.Runtime
             await GetAppVersionInfoAsync(procedureOwner);
         }
 
+        /// <summary>
+        /// 异步获取 App 版本信息。
+        /// </summary>
+        /// <remarks>
+        /// Asynchronously retrieves app version info from server with retry support. Shows upgrade dialog if update is available.
+        /// </remarks>
+        /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
+        /// <returns>获取完成的协程 / Retrieval completion coroutine</returns>
         private async UniTask GetAppVersionInfoAsync(IFsm<IProcedureManager> procedureOwner)
         {
             var options = StartupProcedureUtility.GetOptions(procedureOwner);

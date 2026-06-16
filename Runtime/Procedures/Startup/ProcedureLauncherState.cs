@@ -10,6 +10,9 @@ namespace GameFrameX.Startup.Runtime
     /// <summary>
     /// 启动入口状态。负责拉起启动 UI，然后切换到下一个状态。
     /// </summary>
+    /// <remarks>
+    /// Launcher entry state. Responsible for launching the startup UI, then transitions to the next state.
+    /// </remarks>
     public sealed class ProcedureLauncherState : ProcedureBase
     {
         /// <inheritdoc />
