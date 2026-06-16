@@ -1,8 +1,5 @@
 using System;
-using System.IO;
-
 using Cysharp.Threading.Tasks;
-
 using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.GlobalConfig.Runtime;
@@ -52,23 +49,8 @@ namespace GameFrameX.Startup.Runtime
                     if (httpJsonResult.Code <= 0)
                     {
                         var packageVersion = Utility.Json.ToObject<ResponseGameAssetPackageVersion>(httpJsonResult.Data);
-                        var packageUrl = Path.Combine(
-                            packageVersion.RootPath,
-                            packageVersion.PackageName,
-                            packageVersion.Platform,
-                            packageVersion.AppVersion,
-                            packageVersion.Channel,
-                            packageVersion.AssetPackageName,
-                            packageVersion.Version) + Path.DirectorySeparatorChar;
-
-                        var urlValue = ReferencePool.Acquire<VarString>();
-                        urlValue.SetValue(packageUrl);
-                        procedureOwner.SetData(AssetComponent.BuildInPackageName, urlValue);
-
-                        var versionValue = ReferencePool.Acquire<VarString>();
-                        versionValue.SetValue(packageVersion.Version);
-                        procedureOwner.SetData(AssetComponent.BuildInPackageName + "Version", versionValue);
-
+                        StartupNetworkCacheUtility.ApplyAssetPackageVersionInfo(procedureOwner, packageVersion);
+                        StartupNetworkCacheUtility.SaveAssetPackageVersionInfo(httpJsonResult.Data);
                         ChangeState<ProcedurePatchInit>(procedureOwner);
                         return;
                     }
@@ -82,6 +64,13 @@ namespace GameFrameX.Startup.Runtime
 
                 if (retryIndex >= options.MaxAttemptsPerUrl)
                 {
+                    if (StartupNetworkCacheUtility.TryApplyCachedAssetPackageVersionInfo(procedureOwner))
+                    {
+                        uiHandler?.SetTipText("Using cached asset version...");
+                        ChangeState<ProcedurePatchInit>(procedureOwner);
+                        return;
+                    }
+
                     StartupProcedureUtility.CompleteFailure(
                         procedureOwner,
                         nameof(ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState),

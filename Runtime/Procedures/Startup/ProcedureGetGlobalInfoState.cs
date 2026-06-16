@@ -56,7 +56,6 @@ namespace GameFrameX.Startup.Runtime
             var uiHandler = StartupProcedureUtility.GetUIHandler(procedureOwner);
             var httpParamsProvider = StartupProcedureUtility.GetHttpParamsProvider(procedureOwner);
             var jsonParams = StartupProcedureUtility.CreateHttpParams(options, httpParamsProvider);
-            var globalConfig = GameApp.GlobalConfig;
             var result = await UrlFailoverRunner.ExecuteAsync(
                              options.GlobalInfoUrls,
                              options.MaxAttemptsPerUrl,
@@ -67,16 +66,13 @@ namespace GameFrameX.Startup.Runtime
                                  {
                                      var json = await GameApp.Web.PostToString(url, jsonParams);
                                      var responseGlobalInfo = json.Result.ToHttpJsonResultData<ResponseGlobalInfo>();
-                                     globalConfig.SetOriginalData(json.Result);
                                      if (!responseGlobalInfo.IsSuccess)
                                      {
                                          return UrlAttemptResult.Fail("Global info server returned code " + responseGlobalInfo.Code);
                                      }
 
-                                     globalConfig.CheckAppVersionUrl = responseGlobalInfo.Data.CheckAppVersionUrl;
-                                     globalConfig.CheckResourceVersionUrl = responseGlobalInfo.Data.CheckResourceVersionUrl;
-                                     globalConfig.Content = responseGlobalInfo.Data.Content;
-                                     globalConfig.SetGlobalConfig(responseGlobalInfo.Data);
+                                     StartupNetworkCacheUtility.ApplyGlobalInfo(json.Result, responseGlobalInfo.Data);
+                                     StartupNetworkCacheUtility.SaveGlobalInfo(json.Result);
                                      return UrlAttemptResult.Succeed();
                                  }
                                  catch (Exception exception)
@@ -89,6 +85,13 @@ namespace GameFrameX.Startup.Runtime
 
             if (!result.Success)
             {
+                if (StartupNetworkCacheUtility.TryApplyCachedGlobalInfo())
+                {
+                    uiHandler?.SetTipText("Using cached startup config...");
+                    ChangeState<ProcedureGetAppVersionInfoState>(procedureOwner);
+                    return;
+                }
+
                 StartupProcedureUtility.CompleteFailure(
                     procedureOwner,
                     nameof(ProcedureGetGlobalInfoState),

@@ -1,15 +1,10 @@
 using System;
-
 using Cysharp.Threading.Tasks;
-
-using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.GlobalConfig.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-using GameFrameX.Startup.Runtime;
 using GameFrameX.Web.Runtime;
-
 using UnityEngine;
 using YooAsset;
 
@@ -62,21 +57,8 @@ namespace GameFrameX.Startup.Runtime
                     if (httpJsonResult.Code <= 0)
                     {
                         var gameAppVersion = Utility.Json.ToObject<ResponseGameAppVersion>(httpJsonResult.Data);
-                        if (gameAppVersion.IsUpgrade)
-                        {
-                            var shouldContinue = await uiHandler.ShowUpgradeAsync(new StartupUpgradeInfo(
-                                gameAppVersion.IsForce,
-                                gameAppVersion.AppDownloadUrl,
-                                gameAppVersion.UpdateTitle,
-                                gameAppVersion.UpdateAnnouncement));
-
-                            if (!shouldContinue)
-                            {
-                                return;
-                            }
-                        }
-
-                        ChangeState<ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState>(procedureOwner);
+                        StartupNetworkCacheUtility.SaveAppVersionInfo(httpJsonResult.Data);
+                        await ApplyAppVersionInfoAsync(procedureOwner, uiHandler, gameAppVersion);
                         return;
                     }
 
@@ -89,6 +71,13 @@ namespace GameFrameX.Startup.Runtime
 
                 if (retryIndex >= options.MaxAttemptsPerUrl)
                 {
+                    if (StartupNetworkCacheUtility.TryGetCachedAppVersionInfo(out var cachedGameAppVersion))
+                    {
+                        uiHandler?.SetTipText("Using cached app version...");
+                        await ApplyAppVersionInfoAsync(procedureOwner, uiHandler, cachedGameAppVersion);
+                        return;
+                    }
+
                     StartupProcedureUtility.CompleteFailure(
                         procedureOwner,
                         nameof(ProcedureGetAppVersionInfoState),
@@ -100,6 +89,28 @@ namespace GameFrameX.Startup.Runtime
                 uiHandler?.SetTipText("Server error, retrying... (" + retryIndex + "/" + options.MaxAttemptsPerUrl + ")");
                 await UniTask.Delay(options.RetryDelayMs);
             }
+        }
+
+        private async UniTask ApplyAppVersionInfoAsync(
+            IFsm<IProcedureManager> procedureOwner,
+            IStartupUIHandler uiHandler,
+            ResponseGameAppVersion gameAppVersion)
+        {
+            if (gameAppVersion.IsUpgrade)
+            {
+                var shouldContinue = await uiHandler.ShowUpgradeAsync(new StartupUpgradeInfo(
+                    gameAppVersion.IsForce,
+                    gameAppVersion.AppDownloadUrl,
+                    gameAppVersion.UpdateTitle,
+                    gameAppVersion.UpdateAnnouncement));
+
+                if (!shouldContinue)
+                {
+                    return;
+                }
+            }
+
+            ChangeState<ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState>(procedureOwner);
         }
     }
 }
