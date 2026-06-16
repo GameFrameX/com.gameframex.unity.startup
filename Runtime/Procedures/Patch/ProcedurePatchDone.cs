@@ -7,8 +7,15 @@ using UnityEngine;
 
 namespace GameFrameX.Startup.Runtime
 {
+    /// <summary>
+    /// 资源包补丁流程完成流程。更新界面状态并切换到游戏启动流程。
+    /// </summary>
+    /// <remarks>
+    /// Patch done procedure. Updates UI state and transitions to game launcher procedure.
+    /// </remarks>
     internal sealed class ProcedurePatchDone : ProcedureBase
     {
+        /// <inheritdoc />
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);

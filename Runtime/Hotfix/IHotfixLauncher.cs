@@ -1,7 +1,5 @@
 using Cysharp.Threading.Tasks;
 
-using GameFrameX.Startup.Runtime;
-
 namespace GameFrameX.Startup.Runtime
 {
     /// <summary>

@@ -9,14 +9,29 @@ using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
 {
+    /// <summary>
+    /// 资源包初始化流程。根据游戏运行模式初始化 YooAsset 资源包。
+    /// </summary>
+    /// <remarks>
+    /// Patch initialization procedure. Initializes YooAsset package based on game play mode.
+    /// </remarks>
     internal sealed class ProcedurePatchInit : ProcedureBase
     {
+        /// <inheritdoc />
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
             await InitPatchAsync(procedureOwner);
         }
 
+        /// <summary>
+        /// 异步执行资源包初始化。
+        /// </summary>
+        /// <remarks>
+        /// Asynchronously initializes the asset package. In simulate or offline mode, uses empty URLs.
+        /// </remarks>
+        /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
+        /// <returns>初始化完成的协程 / Initialization completion coroutine</returns>
         private async UniTask InitPatchAsync(IFsm<IProcedureManager> procedureOwner)
         {
             if (GameApp.Asset.GamePlayMode == EPlayMode.EditorSimulateMode || GameApp.Asset.GamePlayMode == EPlayMode.OfflinePlayMode)
