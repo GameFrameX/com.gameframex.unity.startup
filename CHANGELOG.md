@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.0.0...1.0.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **ci:** 更新 ci 配置 ([925fc82](https://github.com/gameframex/com.gameframex.unity.startup/commit/925fc822afa355187802c5ad76d3246b5fcaab4f)), closes [#0](https://github.com/gameframex/com.gameframex.unity.startup/issues/0)
+
 # 1.0.0 (2026-06-16)
 
 
