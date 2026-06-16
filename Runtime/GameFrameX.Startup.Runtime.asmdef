@@ -11,6 +11,7 @@
         "GameFrameX.SystemInfo.Runtime",
         "GameFrameX.Localization.Runtime",
         "GameFrameX.Asset.Runtime",
+        "GameFrameX.Setting.Runtime",
         "YooAsset.Runtime",
         "UniTask.Runtime"
     ],
