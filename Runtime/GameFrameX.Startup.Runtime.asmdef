@@ -8,6 +8,8 @@
         "GameFrameX.Entry.Runtime",
         "GameFrameX.Web.Runtime",
         "GameFrameX.GlobalConfig.Runtime",
+        "GameFrameX.SystemInfo.Runtime",
+        "GameFrameX.Localization.Runtime",
         "GameFrameX.Asset.Runtime",
         "YooAsset.Runtime",
         "UniTask.Runtime"

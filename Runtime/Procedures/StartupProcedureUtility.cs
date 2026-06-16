@@ -1,14 +1,9 @@
 using System.Collections.Generic;
 
 using Cysharp.Threading.Tasks;
-
-using GameFrameX.Asset.Runtime;
-using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-using GameFrameX.Startup.Runtime;
-
 using UnityEngine;
 
 namespace GameFrameX.Startup.Runtime
@@ -57,8 +52,9 @@ namespace GameFrameX.Startup.Runtime
             }
 
             startupHttpParams.Language = Application.systemLanguage.ToString();
+            startupHttpParams.UserLanguage = GameApp.Localization.Language;
             startupHttpParams.AppVersion = Application.version;
-            startupHttpParams.DeviceUniqueIdentifier = SystemInfo.deviceUniqueIdentifier;
+            startupHttpParams.DeviceUniqueIdentifier = SystemInfo.Runtime.BlankDeviceUniqueIdentifier.DeviceUniqueIdentifier;
             startupHttpParams.Platform = ApplicationHelper.PlatformName;
         }
 
