@@ -2,7 +2,7 @@
 
 > Generic Unity game startup flow scaffold. Encapsulates the full pipeline from app launch to hotfix loading with primary-backup URL failover, YooAsset patching, and pluggable UI/hotfix backends.
 
-[简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+[**简体中文**](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ## Features
 
@@ -23,7 +23,7 @@ Add to `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.gameframex.unity.startup": "1.0.0"
+    "com.gameframex.unity.startup": "1.1.0"
   },
   "scopedRegistries": [
     {
@@ -34,6 +34,8 @@ Add to `Packages/manifest.json`:
   ]
 }
 ```
+
+`scopes` controls which packages are resolved through this registry. Only packages whose names start with `com.gameframex` will be fetched from it.
 
 ## Quick Start
 
@@ -153,4 +155,4 @@ Constants available at `GameFrameX.Startup.Runtime.Constants.BlackBoardKeys`.
 
 ## License
 
-MIT
+See [LICENSE.md](LICENSE.md) for details.

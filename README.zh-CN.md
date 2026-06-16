@@ -2,7 +2,7 @@
 
 > Unity 通用启动流程脚手架。封装从游戏启动到热更加载的完整管线，支持 URL 主备 failover、YooAsset 补丁流程、可插拔 UI/热更后端。
 
-[English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+[**English**](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ## 功能特性
 
@@ -23,7 +23,7 @@
 ```json
 {
   "dependencies": {
-    "com.gameframex.unity.startup": "1.0.0"
+    "com.gameframex.unity.startup": "1.1.0"
   },
   "scopedRegistries": [
     {
@@ -34,6 +34,8 @@
   ]
 }
 ```
+
+`scopes` 控制哪些包通过此注册表解析。只有以 `com.gameframex` 开头的包才会从这个注册表获取。
 
 ## 快速开始
 
@@ -153,4 +155,4 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 ## 许可证
 
-MIT
+详见 [LICENSE.md](LICENSE.md)。
