@@ -1,7 +1,5 @@
 using System;
-
 using Cysharp.Threading.Tasks;
-
 using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.GlobalConfig.Runtime;
@@ -9,7 +7,6 @@ using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
 using GameFrameX.Startup.Runtime;
 using GameFrameX.Web.Runtime;
-
 using UnityEngine;
 using YooAsset;
 
@@ -44,33 +41,36 @@ namespace GameFrameX.Startup.Runtime
             var uiHandler = StartupProcedureUtility.GetUIHandler(procedureOwner);
             var httpParamsProvider = StartupProcedureUtility.GetHttpParamsProvider(procedureOwner);
             var jsonParams = StartupProcedureUtility.CreateHttpParams(options, httpParamsProvider);
-            ResponseGlobalInfo responseGlobalInfo = null;
-
+            var globalConfig = GameApp.GlobalConfig;
             var result = await UrlFailoverRunner.ExecuteAsync(
-                options.GlobalInfoUrls,
-                options.MaxAttemptsPerUrl,
-                options.RetryDelayMs,
-                async url =>
-                {
-                    try
-                    {
-                        var json = await GameApp.Web.PostToString(url, jsonParams);
-                        var httpJsonResult = Utility.Json.ToObject<HttpJsonResult>(json.Result);
-                        if (httpJsonResult.Code > 0)
-                        {
-                            return UrlAttemptResult.Fail("Global info server returned code " + httpJsonResult.Code);
-                        }
+                             options.GlobalInfoUrls,
+                             options.MaxAttemptsPerUrl,
+                             options.RetryDelayMs,
+                             async url =>
+                             {
+                                 try
+                                 {
+                                     var json = await GameApp.Web.PostToString(url, jsonParams);
+                                     var responseGlobalInfo = json.Result.ToHttpJsonResultData<ResponseGlobalInfo>();
+                                     globalConfig.SetOriginalData(json.Result);
+                                     if (!responseGlobalInfo.IsSuccess)
+                                     {
+                                         return UrlAttemptResult.Fail("Global info server returned code " + responseGlobalInfo.Code);
+                                     }
 
-                        responseGlobalInfo = Utility.Json.ToObject<ResponseGlobalInfo>(httpJsonResult.Data);
-                        return UrlAttemptResult.Succeed();
-                    }
-                    catch (Exception exception)
-                    {
-                        Log.Error(exception);
-                        return UrlAttemptResult.Fail(exception.Message);
-                    }
-                },
-                (url, attempt, total) => uiHandler?.SetTipText("Loading... (" + attempt + "/" + total + ")"));
+                                     globalConfig.CheckAppVersionUrl = responseGlobalInfo.Data.CheckAppVersionUrl;
+                                     globalConfig.CheckResourceVersionUrl = responseGlobalInfo.Data.CheckResourceVersionUrl;
+                                     globalConfig.Content = responseGlobalInfo.Data.Content;
+                                     globalConfig.SetGlobalConfig(responseGlobalInfo.Data);
+                                     return UrlAttemptResult.Succeed();
+                                 }
+                                 catch (Exception exception)
+                                 {
+                                     Log.Error(exception);
+                                     return UrlAttemptResult.Fail(exception.Message);
+                                 }
+                             },
+                             (url, attempt, total) => uiHandler?.SetTipText("Loading... (" + attempt + "/" + total + ")"));
 
             if (!result.Success)
             {
@@ -82,10 +82,7 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
-            var globalConfig = GameApp.GlobalConfig;
-            globalConfig.CheckAppVersionUrl = responseGlobalInfo.CheckAppVersionUrl;
-            globalConfig.CheckResourceVersionUrl = responseGlobalInfo.CheckResourceVersionUrl;
-            globalConfig.Content = responseGlobalInfo.Content;
+
             uiHandler?.SetTipText("Loading...");
             ChangeState<ProcedureGetAppVersionInfoState>(procedureOwner);
         }
