@@ -39,7 +39,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "registry": "https://gameframex.upm.alianblank.uk"
+    "registry": "https://npm.cnb.cool/GameFrameX/npm/-/packages/"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
