@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 
 using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
@@ -175,21 +174,14 @@ namespace GameFrameX.Startup.Runtime
         /// 应用资源包版本信息到流程。
         /// </summary>
         /// <remarks>
-        /// Applies the asset package version info to the procedure owner by constructing the package URL
-        /// from root path, package name, platform, app version, channel, asset package name, and version.
+        /// Applies the asset package version info to the procedure owner by using the server provided package path,
+        /// or constructing one from root path, package name, platform, app version, channel, asset package name, and version.
         /// </remarks>
         /// <param name="procedureOwner">流程所有者，用于存储资源包信息 / Procedure owner, used to store asset package info</param>
         /// <param name="packageVersion">资源包版本信息 / Asset package version info</param>
         public static void ApplyAssetPackageVersionInfo(IFsm<IProcedureManager> procedureOwner, ResponseGameAssetPackageVersion packageVersion)
         {
-            var packageUrl = Path.Combine(
-                packageVersion.RootPath,
-                packageVersion.PackageName,
-                packageVersion.Platform,
-                packageVersion.AppVersion,
-                packageVersion.Channel,
-                packageVersion.AssetPackageName,
-                packageVersion.Version) + Path.DirectorySeparatorChar;
+            var packageUrl = GetAssetPackageUrl(packageVersion);
 
             var urlValue = ReferencePool.Acquire<VarString>();
             urlValue.SetValue(packageUrl);
@@ -198,6 +190,33 @@ namespace GameFrameX.Startup.Runtime
             var versionValue = ReferencePool.Acquire<VarString>();
             versionValue.SetValue(packageVersion.Version);
             procedureOwner.SetData(AssetComponent.BuildInPackageName + "Version", versionValue);
+        }
+
+        private static string GetAssetPackageUrl(ResponseGameAssetPackageVersion packageVersion)
+        {
+            if (!string.IsNullOrWhiteSpace(packageVersion.AssetPackagePath))
+            {
+                return packageVersion.AssetPackagePath;
+            }
+
+            return EnsureTrailingSlash(PathHelper.Combine(
+                packageVersion.RootPath,
+                packageVersion.PackageName,
+                packageVersion.Platform,
+                packageVersion.AppVersion,
+                packageVersion.Channel,
+                packageVersion.AssetPackageName,
+                packageVersion.Version));
+        }
+
+        private static string EnsureTrailingSlash(string path)
+        {
+            if (path.EndsWithFast("/") || path.EndsWithFast("\\"))
+            {
+                return path;
+            }
+
+            return path + "/";
         }
 
         private static bool TryGetString(string key, out string value)
