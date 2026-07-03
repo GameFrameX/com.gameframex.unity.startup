@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 
 using GameFrameX.Startup.Runtime;
@@ -5,6 +6,7 @@ using GameFrameX.Startup.Runtime;
 using NUnit.Framework;
 
 using UnityEngine;
+using YooAsset;
 
 namespace GameFrameX.Startup.Runtime.Tests
 {
@@ -16,9 +18,15 @@ namespace GameFrameX.Startup.Runtime.Tests
         {
             var options = ScriptableObject.CreateInstance<StartupOptions>();
 
+            // Asset
+            Assert.AreEqual(EPlayMode.EditorSimulateMode, options.GamePlayMode);
+
             // Network
             Assert.IsNotNull(options.GlobalInfoUrls);
             Assert.AreEqual(0, options.GlobalInfoUrls.Length, "GlobalInfoUrls default should be empty array");
+            Assert.AreEqual(string.Empty, options.GameFrameXApiKey);
+            Assert.AreEqual(string.Empty, options.GameFrameXAppId);
+            Assert.AreEqual(string.Empty, options.GameFrameXAppSecret);
             Assert.AreEqual(3, options.MaxAttemptsPerUrl);
             Assert.AreEqual(3000, options.RetryDelayMs);
 
@@ -55,11 +63,29 @@ namespace GameFrameX.Startup.Runtime.Tests
         }
 
         [Test]
-        public void HasTenPublicFields()
+        public void HasFourteenPublicFields()
         {
             var publicFields = typeof(StartupOptions).GetFields(BindingFlags.Public | BindingFlags.Instance);
-            Assert.AreEqual(10, publicFields.Length,
-                "StartupOptions should expose exactly 10 public fields per spec §3.1.1");
+            Assert.AreEqual(14, publicFields.Length,
+                "StartupOptions should expose exactly 14 public fields per spec §3.1.1");
+        }
+
+        [Test]
+        public void CreateGameFrameXHeaders_OnlyIncludesNonEmptyValues()
+        {
+            var options = ScriptableObject.CreateInstance<StartupOptions>();
+            options.GameFrameXApiKey = "api-key";
+            options.GameFrameXAppId = "";
+            options.GameFrameXAppSecret = "app-secret";
+
+            var utilityType = typeof(StartupOptions).Assembly.GetType("GameFrameX.Startup.Runtime.StartupProcedureUtility");
+            var method = utilityType.GetMethod("CreateGameFrameXHeaders", BindingFlags.Public | BindingFlags.Static);
+            var headers = (Dictionary<string, string>)method.Invoke(null, new object[] { options });
+
+            Assert.AreEqual(2, headers.Count);
+            Assert.AreEqual("api-key", headers["GameFrameX-Api-Key"]);
+            Assert.AreEqual("app-secret", headers["GameFrameX-App-Secret"]);
+            Assert.IsFalse(headers.ContainsKey("GameFrameX-App-Id"));
         }
     }
 }

@@ -36,6 +36,15 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
+            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXApiKeyHeader);
+            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppIdHeader);
+            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppSecretHeader);
+
+            foreach (var header in StartupProcedureUtility.CreateGameFrameXHeaders(options))
+            {
+                GameApp.Web.AddBaseHeader(header.Key, header.Value);
+            }
+
             await uiHandler.StartAsync(options.LauncherUIResName);
 
             await UniTask.NextFrame();

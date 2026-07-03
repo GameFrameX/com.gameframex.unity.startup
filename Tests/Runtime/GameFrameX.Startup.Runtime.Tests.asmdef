@@ -7,6 +7,7 @@
         "GameFrameX.FSM.Runtime",
         "GameFrameX.Event.Runtime",
         "GameFrameX.Entry.Runtime",
+        "YooAsset.Runtime",
         "UniTask.Runtime"
     ],
     "rootNamespace": "GameFrameX.Startup.Runtime.Tests",

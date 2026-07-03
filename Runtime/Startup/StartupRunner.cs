@@ -6,6 +6,7 @@ using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
 using GameFrameX.Startup.Runtime;
+using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
 {
@@ -24,9 +25,10 @@ namespace GameFrameX.Startup.Runtime
         /// <summary>
         /// 启动完整启动流程。
         /// </summary>
-        /// <param name="options">配置资产，提供 URL 列表、热更入口、HTTP 参数等。</param>
+        /// <param name="options">配置资产，提供资源模式、URL 列表、热更入口、HTTP 参数等。</param>
         /// <param name="uiHandler">UI 处理实现（应用层注入）。</param>
         /// <param name="hotfixLauncher">热更启动实现（应用层注入）。</param>
+        /// <param name="httpParamsProvider">HTTP 公共参数提供器。</param>
         /// <returns>
         /// UniTask&lt;StartupResult&gt; — 永远会 complete（成功/失败都返回，不抛异常）。
         /// 调用方可 await 此 UniTask；同时流程结束时会通过 GameApp.Event.Fire 触发 StartupCompleted/FailedEventArgs。
@@ -64,17 +66,20 @@ namespace GameFrameX.Startup.Runtime
             {
                 throw new ArgumentException(
                     "StartupOptions.GlobalInfoUrls must contain at least one URL.",
-                    "GlobalInfoUrls");
+                    nameof(StartupOptions.GlobalInfoUrls));
             }
 
-            // 步骤 2: 创建 UniTaskCompletionSource（成功/失败的 SetResult 由 Procedure 在 bootstrap-3/4 调用）
+            // 步骤 2: 在任何资源加载前同步资源运行模式。
+            ApplyAssetPlayMode(options);
+
+            // 步骤 3: 创建 UniTaskCompletionSource（成功/失败的 SetResult 由 Procedure 在 bootstrap-3/4 调用）
             var tcs = new UniTaskCompletionSource<StartupResult>();
 
-            // 步骤 3: 获取框架模块
+            // 步骤 4: 获取框架模块
             var fsmManager = GameFrameworkEntry.GetModule<IFsmManager>();
             var procedureManager = GameFrameworkEntry.GetModule<IProcedureManager>();
 
-            // 步骤 4: Initialize 内部由 procedureManager 创建 procedure FSM
+            // 步骤 5: Initialize 内部由 procedureManager 创建 procedure FSM
             procedureManager.Initialize(fsmManager, new ProcedureBase[]
             {
                 new ProcedureLauncherState(),
@@ -90,10 +95,10 @@ namespace GameFrameX.Startup.Runtime
                 new ProcedureGameLauncherState(),
             });
 
-            // 步骤 5: 通过 IFsmManager.GetFsm<T>() 取回刚创建的 procedure FSM
+            // 步骤 6: 通过 IFsmManager.GetFsm<T>() 取回刚创建的 procedure FSM
             var procedureFsm = fsmManager.GetFsm<IProcedureManager>();
 
-            // 步骤 6: 注入 3 个 BlackBoard key（VarObject 无隐式转换，显式 Acquire + 赋 Value）
+            // 步骤 7: 注入 BlackBoard key（VarObject 无隐式转换，显式 Acquire + 赋 Value）
             var optionsBox = ReferencePool.Acquire<VarObject>();
             optionsBox.Value = options;
             procedureFsm.SetData(BlackBoardKeys.StartupOptions, optionsBox);
@@ -114,11 +119,30 @@ namespace GameFrameX.Startup.Runtime
             httpParamsProviderBox.Value = httpParamsProvider ?? new DefaultStartupHttpParamsProvider();
             procedureFsm.SetData(BlackBoardKeys.StartupHttpParamsProvider, httpParamsProviderBox);
 
-            // 步骤 7: 启动第一个 Procedure 状态
+            // 步骤 8: 启动第一个 Procedure 状态
             procedureManager.StartProcedure<ProcedureLauncherState>();
 
-            // 步骤 8: 返回 tcs.Task（fire-and-forget 启动后立即返回；tcs 由 Procedure 在 bootstrap-3/4 完成）
+            // 步骤 9: 返回 tcs.Task（fire-and-forget 启动后立即返回；tcs 由 Procedure 在 bootstrap-3/4 完成）
             return tcs.Task;
+        }
+
+        private static void ApplyAssetPlayMode(StartupOptions options)
+        {
+            GameApp.Asset.GamePlayMode = NormalizeAssetPlayMode(options.GamePlayMode);
+        }
+
+        private static EPlayMode NormalizeAssetPlayMode(EPlayMode playMode)
+        {
+#if !UNITY_EDITOR
+            if (playMode == EPlayMode.EditorSimulateMode)
+            {
+                playMode = EPlayMode.HostPlayMode;
+            }
+#if UNITY_WEBGL
+            playMode = EPlayMode.WebPlayMode;
+#endif
+#endif
+            return playMode;
         }
     }
 }
