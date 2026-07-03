@@ -43,6 +43,7 @@ namespace GameFrameX.Startup.Editor
 
             // 可重排的 URL 列表
             _urlList.DoLayoutList();
+            DrawTooltipHelpBox(_urlListProperty);
 
             EditorGUILayout.Space();
 
@@ -68,7 +69,16 @@ namespace GameFrameX.Startup.Editor
                 }
 
                 EditorGUILayout.PropertyField(iterator, true);
+                DrawTooltipHelpBox(iterator);
             } while (iterator.NextVisible(false));
+        }
+
+        private static void DrawTooltipHelpBox(SerializedProperty property)
+        {
+            if (!string.IsNullOrEmpty(property.tooltip))
+            {
+                EditorGUILayout.HelpBox(property.tooltip, MessageType.Info);
+            }
         }
     }
 }
