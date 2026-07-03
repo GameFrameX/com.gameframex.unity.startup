@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - First stable release.
-- `StartupOptions` ScriptableObject config asset (10 fields): URL failover, hotfix entry, HTTP public params, launcher UI resource.
+- `StartupOptions` ScriptableObject config asset (11 fields): asset play mode, URL failover, hotfix entry, HTTP public params, launcher UI resource.
 - `IStartupUIHandler` interface — 5 methods for UI operations (StartAsync / SetTipText / SetProgress / SetProgressUpdateFinish / Dispose).
 - `IHotfixLauncher` interface — async `StartAsync(StartupOptions)` returning `UniTask<HotfixLaunchResult>`.
 - `StartupResult` / `HotfixLaunchResult` value structs with success/fail factory methods.

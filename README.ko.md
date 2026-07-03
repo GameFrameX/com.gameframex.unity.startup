@@ -7,7 +7,7 @@
 ## 기능 특성
 
 - **一行 엔트리**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **설정 주도**：`StartupOptions` ScriptableObject, 10개 필드 (URL 목록, 핫픽스 엔트리, HTTP 파라미터, UI 리소스)
+- **설정 주도**：`StartupOptions` ScriptableObject, 11개 필드 (리소스 모드, URL 목록, 핫픽스 엔트리, HTTP 파라미터, UI 리소스)
 - **주-백업 failover**：`GlobalInfoUrls[]` 배열 + `MaxAttemptsPerUrl` 재시도 정책
 - **UI 백엔드 무관**：`IStartupUIHandler` 인터페이스, FairyGUI / UGUI / 커스텀 UI 호환
 - **핫픽스方案 무관**：`IHotfixLauncher` 인터페이스, HybridCLR / 다른 핫픽스方案 호환
@@ -44,6 +44,7 @@
 Unity Editor에서：`Create > GameFrameX > Startup Options`。설정：
 
 - `GlobalInfoUrls`：글로벌 정보 API의 주-백업 URL 목록
+- `GamePlayMode`：리소스 실행 모드. 시작 플로우가 리소스 로드 전에 Asset 컴포넌트로 동기화합니다
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：핫픽스 엔트리 포인트
 - `PackageName` / `Channel` / `SubChannel`：HTTP 공용 파라미터
 - `LauncherUIResName`：실행 UI 리소스 경로 (기본 `UI/UILauncher`)
@@ -114,7 +115,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 타입 | 설명 |
 |-----|------|
-| `StartupOptions` | ScriptableObject 설정 에셋 (10개 필드) |
+| `StartupOptions` | ScriptableObject 설정 에셋 (11개 필드) |
 | `StartupResult` | 반환값, `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` 포함 |
 | `HotfixLaunchResult` | 핫픽스 전용 결과, `Success` / `ErrorMessage` 포함 |
 | `IStartupUIHandler` | UI 작업 인터페이스 (5개 메서드) |

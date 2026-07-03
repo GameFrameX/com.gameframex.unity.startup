@@ -7,7 +7,7 @@
 ## 功能特性
 
 - **單行入口**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **配置驅動**：`StartupOptions` ScriptableObject，10 個欄位（URL 列表、熱更入口、HTTP 參數、UI 資源）
+- **配置驅動**：`StartupOptions` ScriptableObject，11 個欄位（資源模式、URL 列表、熱更入口、HTTP 參數、UI 資源）
 - **主備 failover**：`GlobalInfoUrls[]` 陣列 + `MaxAttemptsPerUrl` 重試策略
 - **UI 後端無關**：`IStartupUIHandler` 介面，相容 FairyGUI / UGUI / 自定義 UI
 - **熱更方案無關**：`IHotfixLauncher` 介面，相容 HybridCLR / 其他熱更方案
@@ -44,6 +44,7 @@
 Unity Editor 中：`Create > GameFrameX > Startup Options`。設定：
 
 - `GlobalInfoUrls`：全域資訊介面的主備 URL 列表
+- `GamePlayMode`：資源運行模式，啟動流程會在載入資源前同步到 Asset 元件
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：熱更入口
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共參數
 - `LauncherUIResName`：啟動 UI 資源路徑（預設 `UI/UILauncher`）
@@ -114,7 +115,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 類型 | 說明 |
 |------|------|
-| `StartupOptions` | ScriptableObject 設定資產（10 欄位） |
+| `StartupOptions` | ScriptableObject 設定資產（11 欄位） |
 | `StartupResult` | 傳回值，含 `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` |
 | `HotfixLaunchResult` | 熱更專屬結果，含 `Success` / `ErrorMessage` |
 | `IStartupUIHandler` | UI 操作介面（5 方法） |

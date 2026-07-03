@@ -7,7 +7,7 @@
 ## Features
 
 - **One-line entry**: `await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **Config-driven**: `StartupOptions` ScriptableObject with 10 fields (URL list, hotfix entry, HTTP params, UI resource)
+- **Config-driven**: `StartupOptions` ScriptableObject with 11 fields (asset play mode, URL list, hotfix entry, HTTP params, UI resource)
 - **Primary-backup failover**: `GlobalInfoUrls[]` with `MaxAttemptsPerUrl` retry policy
 - **Backend-agnostic UI**: `IStartupUIHandler` interface — works with FairyGUI, UGUI, or any custom UI
 - **Backend-agnostic hotfix**: `IHotfixLauncher` interface — works with HybridCLR or any hotfix solution
@@ -44,6 +44,7 @@ Add to `Packages/manifest.json`:
 In Unity Editor: `Create > GameFrameX > Startup Options`. Configure:
 
 - `GlobalInfoUrls`: primary + backup URLs for the global info API
+- `GamePlayMode`: asset play mode synchronized to the Asset component before startup loads resources
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`: hotfix entry points
 - `PackageName` / `Channel` / `SubChannel`: HTTP public params
 - `LauncherUIResName`: UI resource path (default `UI/UILauncher`)
@@ -114,7 +115,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | Type | Description |
 |------|-------------|
-| `StartupOptions` | ScriptableObject config asset (10 fields) |
+| `StartupOptions` | ScriptableObject config asset (11 fields) |
 | `StartupResult` | Return value with `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` |
 | `HotfixLaunchResult` | Hotfix-specific result with `Success` / `ErrorMessage` |
 | `IStartupUIHandler` | UI operations interface (5 methods) |

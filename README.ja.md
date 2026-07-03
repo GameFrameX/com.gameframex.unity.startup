@@ -7,7 +7,7 @@
 ## 機能特性
 
 - **一行エントリ**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **設定駆動**：`StartupOptions` ScriptableObject、10 フィールド（URL リスト、熱更エントリ、HTTP パラメータ、UI リソース）
+- **設定駆動**：`StartupOptions` ScriptableObject、11 フィールド（リソースモード、URL リスト、熱更エントリ、HTTP パラメータ、UI リソース）
 - **主備 failover**：`GlobalInfoUrls[]` 配列 + `MaxAttemptsPerUrl` リトライポリシー
 - **UI バックエンド非依存**：`IStartupUIHandler` インターフェース、FairyGUI / UGUI / カスタム UI に対応
 - **ホットフィックス方案非依存**：`IHotfixLauncher` インターフェース、HybridCLR / 他のホットフィックス方案に対応
@@ -44,6 +44,7 @@
 Unity Editor で：`Create > GameFrameX > Startup Options`。設定：
 
 - `GlobalInfoUrls`：グローバル情報 API の主備 URL リスト
+- `GamePlayMode`：リソース実行モード。起動フローがリソース読み込み前に Asset コンポーネントへ同期します
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：ホットフィックスエントリポイント
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共パラメータ
 - `LauncherUIResName`：起動 UI リソースパス（デフォルト `UI/UILauncher`）
@@ -114,7 +115,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 型 | 説明 |
 |-----|------|
-| `StartupOptions` | ScriptableObject 設定アセット（10 フィールド） |
+| `StartupOptions` | ScriptableObject 設定アセット（11 フィールド） |
 | `StartupResult` | 戻り値、`Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` を含む |
 | `HotfixLaunchResult` | ホットフィックス専用結果、`Success` / `ErrorMessage` を含む |
 | `IStartupUIHandler` | UI 操作インターフェース（5 メソッド） |
