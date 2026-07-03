@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.0.1...1.1.0) (2026-07-03)
+
+
+### Features
+
+* **editor:** 启动配置 Inspector 显示字段 tooltip ([3609eea](https://github.com/gameframex/com.gameframex.unity.startup/commit/3609eea07645833d51961f289b7d82713162f9e8))
+* **startup:** 扩展 StartupOptions 字段与资源模式同步、后台认证头 ([6b385e3](https://github.com/gameframex/com.gameframex.unity.startup/commit/6b385e30970b3a1f8eaa38f9610f6104d3e52303))
+* **startup:** 资源包 URL 优先使用服务端下发路径 ([37ba81b](https://github.com/gameframex/com.gameframex.unity.startup/commit/37ba81bef027751a3c7ca587e13eb41d1817d326))
+
 ## [1.0.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.0.0...1.0.1) (2026-06-16)
 
 
