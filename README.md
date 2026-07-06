@@ -7,12 +7,13 @@
 ## Features
 
 - **One-line entry**: `await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **Config-driven**: `StartupOptions` ScriptableObject with 11 fields (asset play mode, URL list, hotfix entry, HTTP params, UI resource)
+- **Config-driven**: `StartupOptions` ScriptableObject with 15 fields (asset play mode, URL list, standalone toggle, hotfix entry, HTTP params, UI resource)
 - **Primary-backup failover**: `GlobalInfoUrls[]` with `MaxAttemptsPerUrl` retry policy
 - **Backend-agnostic UI**: `IStartupUIHandler` interface — works with FairyGUI, UGUI, or any custom UI
 - **Backend-agnostic hotfix**: `IHotfixLauncher` interface — works with HybridCLR or any hotfix solution
 - **Dual-track completion**: `UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` events (both fire)
 - **PlayMode-aware**: `EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` branches
+- **Standalone-ready**: `SkipRemoteStartupRequests` option skips all remote startup requests (global info / app version / asset package version) for WebGL standalone or backend-less deployments
 - **YooAsset integration**: Standard patch flow (init → static version → manifest → download → done)
 - **No channel SDK calls**: Channel/SubChannel fields are pure data, no SDK dependencies
 
@@ -48,6 +49,7 @@ In Unity Editor: `Create > GameFrameX > Startup Options`. Configure:
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`: hotfix entry points
 - `PackageName` / `Channel` / `SubChannel`: HTTP public params
 - `LauncherUIResName`: UI resource path (default `UI/UILauncher`)
+- `SkipRemoteStartupRequests`: skip all remote startup requests (global info / app version / asset package version). Enable for WebGL standalone or backend-less deployments.
 
 ### 2. Implement the UI handler
 
@@ -115,7 +117,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | Type | Description |
 |------|-------------|
-| `StartupOptions` | ScriptableObject config asset (11 fields) |
+| `StartupOptions` | ScriptableObject config asset (15 fields) |
 | `StartupResult` | Return value with `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` |
 | `HotfixLaunchResult` | Hotfix-specific result with `Success` / `ErrorMessage` |
 | `IStartupUIHandler` | UI operations interface (5 methods) |

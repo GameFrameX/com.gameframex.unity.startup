@@ -7,12 +7,13 @@
 ## 기능 특성
 
 - **一行 엔트리**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **설정 주도**：`StartupOptions` ScriptableObject, 11개 필드 (리소스 모드, URL 목록, 핫픽스 엔트리, HTTP 파라미터, UI 리소스)
+- **설정 주도**：`StartupOptions` ScriptableObject, 15개 필드 (리소스 모드, URL 목록, 스탠드얼론 토글, 핫픽스 엔트리, HTTP 파라미터, UI 리소스)
 - **주-백업 failover**：`GlobalInfoUrls[]` 배열 + `MaxAttemptsPerUrl` 재시도 정책
 - **UI 백엔드 무관**：`IStartupUIHandler` 인터페이스, FairyGUI / UGUI / 커스텀 UI 호환
 - **핫픽스方案 무관**：`IHotfixLauncher` 인터페이스, HybridCLR / 다른 핫픽스方案 호환
 - **이중 트랙 완료 알림**：`UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` 이벤트 (두 경로 모두 트리거)
 - **PlayMode 인식**：`EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` 분기 처리
+- **스탠드얼론 지원**: `SkipRemoteStartupRequests` 옵션은 모든 원격 시작 요청(글로벌 정보 / App 버전 / 에셋 패키지 버전)을 건너뜁니다. WebGL 스탠드얼론 또는 백엔드 없는 배포에 적합.
 - **YooAsset 통합**：표준 패치 흐름 (초기화 → 정적 버전 → 매니페스트 → 다운로드 → 완료)
 - **채널 SDK 호출 없음**：Channel/SubChannel 필드는 순수 데이터, SDK 의존 없음
 
@@ -48,6 +49,7 @@ Unity Editor에서：`Create > GameFrameX > Startup Options`。설정：
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：핫픽스 엔트리 포인트
 - `PackageName` / `Channel` / `SubChannel`：HTTP 공용 파라미터
 - `LauncherUIResName`：실행 UI 리소스 경로 (기본 `UI/UILauncher`)
+- `SkipRemoteStartupRequests`: 모든 원격 시작 요청(글로벌 정보 / App 버전 / 에셋 패키지 버전)을 건너뜁니다. WebGL 스탠드얼론 또는 백엔드 없는 배포 시 활성화.
 
 ### 2. UI 핸들러 구현
 
@@ -115,7 +117,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 타입 | 설명 |
 |-----|------|
-| `StartupOptions` | ScriptableObject 설정 에셋 (11개 필드) |
+| `StartupOptions` | ScriptableObject 설정 에셋 (15개 필드) |
 | `StartupResult` | 반환값, `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` 포함 |
 | `HotfixLaunchResult` | 핫픽스 전용 결과, `Success` / `ErrorMessage` 포함 |
 | `IStartupUIHandler` | UI 작업 인터페이스 (5개 메서드) |

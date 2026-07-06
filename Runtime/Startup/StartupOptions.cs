@@ -26,6 +26,9 @@ namespace GameFrameX.Startup.Runtime
 
         [Tooltip("重试之间的延迟毫秒数。")] public int RetryDelayMs = 3000;
 
+        [Tooltip("是否跳过远程启动请求（全局信息、App 版本、资源包版本）。WebGL 单机等无后端场景启用，直接进入本地资源初始化。")]
+        public bool SkipRemoteStartupRequests = false;
+
         [Header("Hotfix")] [Tooltip("Hotfix 程序集名，传给 IHotfixLauncher 使用。")]
         public string HotfixAssemblyName = "Unity.Hotfix";
 

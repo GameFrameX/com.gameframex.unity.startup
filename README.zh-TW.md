@@ -7,12 +7,13 @@
 ## 功能特性
 
 - **單行入口**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **配置驅動**：`StartupOptions` ScriptableObject，11 個欄位（資源模式、URL 列表、熱更入口、HTTP 參數、UI 資源）
+- **配置驅動**：`StartupOptions` ScriptableObject，15 個欄位（資源模式、URL 列表、單機開關、熱更入口、HTTP 參數、UI 資源）
 - **主備 failover**：`GlobalInfoUrls[]` 陣列 + `MaxAttemptsPerUrl` 重試策略
 - **UI 後端無關**：`IStartupUIHandler` 介面，相容 FairyGUI / UGUI / 自定義 UI
 - **熱更方案無關**：`IHotfixLauncher` 介面，相容 HybridCLR / 其他熱更方案
 - **雙軌完成通知**：`UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` 事件（兩條路徑都觸發）
 - **PlayMode 自適應**：`EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` 分支處理
+- **單機就緒**：`SkipRemoteStartupRequests` 選項跳過全部遠端啟動請求（全局資訊 / App 版本 / 資源包版本），適用於 WebGL 單機或無後端部署
 - **YooAsset 集成**：標準補丁流程（初始化 → 靜態版本 → 清單 → 下載 → 完成）
 - **不呼叫任何渠道 SDK**：Channel/SubChannel 欄位是純資料，無 SDK 依賴
 
@@ -48,6 +49,7 @@ Unity Editor 中：`Create > GameFrameX > Startup Options`。設定：
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：熱更入口
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共參數
 - `LauncherUIResName`：啟動 UI 資源路徑（預設 `UI/UILauncher`）
+- `SkipRemoteStartupRequests`：跳過全部遠端啟動請求（全局資訊 / App 版本 / 資源包版本）。WebGL 單機或無後端部署時啟用。
 
 ### 2. 實作 UI 處理器
 
@@ -115,7 +117,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 類型 | 說明 |
 |------|------|
-| `StartupOptions` | ScriptableObject 設定資產（11 欄位） |
+| `StartupOptions` | ScriptableObject 設定資產（15 欄位） |
 | `StartupResult` | 傳回值，含 `Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` |
 | `HotfixLaunchResult` | 熱更專屬結果，含 `Success` / `ErrorMessage` |
 | `IStartupUIHandler` | UI 操作介面（5 方法） |

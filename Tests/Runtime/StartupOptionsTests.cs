@@ -29,6 +29,7 @@ namespace GameFrameX.Startup.Runtime.Tests
             Assert.AreEqual(string.Empty, options.GameFrameXAppSecret);
             Assert.AreEqual(3, options.MaxAttemptsPerUrl);
             Assert.AreEqual(3000, options.RetryDelayMs);
+            Assert.IsFalse(options.SkipRemoteStartupRequests);
 
             // Hotfix
             Assert.AreEqual("Unity.Hotfix", options.HotfixAssemblyName);
@@ -63,11 +64,11 @@ namespace GameFrameX.Startup.Runtime.Tests
         }
 
         [Test]
-        public void HasFourteenPublicFields()
+        public void HasFifteenPublicFields()
         {
             var publicFields = typeof(StartupOptions).GetFields(BindingFlags.Public | BindingFlags.Instance);
-            Assert.AreEqual(14, publicFields.Length,
-                "StartupOptions should expose exactly 14 public fields per spec §3.1.1");
+            Assert.AreEqual(15, publicFields.Length,
+                "StartupOptions should expose exactly 15 public fields per spec §3.1.1");
         }
 
         [Test]

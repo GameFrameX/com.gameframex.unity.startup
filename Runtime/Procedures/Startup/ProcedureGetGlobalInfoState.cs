@@ -39,6 +39,14 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
+            var options = StartupProcedureUtility.GetOptions(procedureOwner);
+            if (options != null && options.SkipRemoteStartupRequests)
+            {
+                Debug.Log("Skip remote startup requests option enabled, skip remote startup requests.");
+                ChangeState<ProcedurePatchInit>(procedureOwner);
+                return;
+            }
+
             await GetGlobalInfoAsync(procedureOwner);
         }
 

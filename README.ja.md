@@ -7,12 +7,13 @@
 ## 機能特性
 
 - **一行エントリ**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **設定駆動**：`StartupOptions` ScriptableObject、11 フィールド（リソースモード、URL リスト、熱更エントリ、HTTP パラメータ、UI リソース）
+- **設定駆動**：`StartupOptions` ScriptableObject、15 フィールド（リソースモード、URL リスト、スタンドアロントグル、熱更エントリ、HTTP パラメータ、UI リソース）
 - **主備 failover**：`GlobalInfoUrls[]` 配列 + `MaxAttemptsPerUrl` リトライポリシー
 - **UI バックエンド非依存**：`IStartupUIHandler` インターフェース、FairyGUI / UGUI / カスタム UI に対応
 - **ホットフィックス方案非依存**：`IHotfixLauncher` インターフェース、HybridCLR / 他のホットフィックス方案に対応
 - **二軌完了通知**：`UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` イベント（両方の経路がトリガー）
 - **PlayMode 適応**：`EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` 分岐処理
+- **スタンドアロン対応**：`SkipRemoteStartupRequests` オプションは全リモート起動リクエスト（グローバル情報 / App バージョン / アセットパッケージバージョン）をスキップ。WebGL スタンドアロンやバックエンド不要のデプロイ向け。
 - **YooAsset 統合**：標準パッチフロー（初期化 → 静的バージョン → マニフェスト → ダウンロード → 完了）
 - **チャネル SDK を呼ばない**：Channel/SubChannel フィールドは純データ、SDK 依存なし
 
@@ -48,6 +49,7 @@ Unity Editor で：`Create > GameFrameX > Startup Options`。設定：
 - `HotfixAssemblyName` / `HotfixEntryTypeName` / `HotfixEntryMethodName`：ホットフィックスエントリポイント
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共パラメータ
 - `LauncherUIResName`：起動 UI リソースパス（デフォルト `UI/UILauncher`）
+- `SkipRemoteStartupRequests`：全リモート起動リクエスト（グローバル情報 / App バージョン / アセットパッケージバージョン）をスキップ。WebGL スタンドアロンやバックエンド不要のデプロイ時に有効化。
 
 ### 2. UI ハンドラの実装
 
@@ -115,7 +117,7 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 
 | 型 | 説明 |
 |-----|------|
-| `StartupOptions` | ScriptableObject 設定アセット（11 フィールド） |
+| `StartupOptions` | ScriptableObject 設定アセット（15 フィールド） |
 | `StartupResult` | 戻り値、`Success` / `FailedProcedureName` / `FailedUrl` / `ErrorMessage` を含む |
 | `HotfixLaunchResult` | ホットフィックス専用結果、`Success` / `ErrorMessage` を含む |
 | `IStartupUIHandler` | UI 操作インターフェース（5 メソッド） |
