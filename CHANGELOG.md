@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.1.0...1.2.0) (2026-07-06)
+
+
+### Features
+
+* **startup:** 新增 SkipRemoteStartupRequests 支持 WebGL 单机跳过远程启动请求 ([5ca575c](https://github.com/gameframex/com.gameframex.unity.startup/commit/5ca575c53091aaf237d8da6b1b26f954d5b9a114)), closes [GameFrameX/GameFrameX.Unity#42](https://github.com/GameFrameX/GameFrameX.Unity/issues/42)
+
 # [1.1.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.0.1...1.1.0) (2026-07-03)
 
 
