@@ -25,6 +25,7 @@ namespace GameFrameX.Startup.Runtime.Tests
             Assert.IsNotNull(options.GlobalInfoUrls);
             Assert.AreEqual(0, options.GlobalInfoUrls.Length, "GlobalInfoUrls default should be empty array");
             Assert.AreEqual(string.Empty, options.GameFrameXApiKey);
+            Assert.AreEqual(string.Empty, options.GameFrameXTenantSecret);
             Assert.AreEqual(string.Empty, options.GameFrameXAppId);
             Assert.AreEqual(string.Empty, options.GameFrameXAppSecret);
             Assert.AreEqual(3, options.MaxAttemptsPerUrl);
@@ -64,11 +65,11 @@ namespace GameFrameX.Startup.Runtime.Tests
         }
 
         [Test]
-        public void HasFifteenPublicFields()
+        public void HasSixteenPublicFields()
         {
             var publicFields = typeof(StartupOptions).GetFields(BindingFlags.Public | BindingFlags.Instance);
-            Assert.AreEqual(15, publicFields.Length,
-                "StartupOptions should expose exactly 15 public fields per spec §3.1.1");
+            Assert.AreEqual(16, publicFields.Length,
+                "StartupOptions should expose exactly 16 public fields per spec §3.1.1");
         }
 
         [Test]
@@ -76,6 +77,7 @@ namespace GameFrameX.Startup.Runtime.Tests
         {
             var options = ScriptableObject.CreateInstance<StartupOptions>();
             options.GameFrameXApiKey = "api-key";
+            options.GameFrameXTenantSecret = "tenant-secret";
             options.GameFrameXAppId = "";
             options.GameFrameXAppSecret = "app-secret";
 
@@ -83,9 +85,11 @@ namespace GameFrameX.Startup.Runtime.Tests
             var method = utilityType.GetMethod("CreateGameFrameXHeaders", BindingFlags.Public | BindingFlags.Static);
             var headers = (Dictionary<string, string>)method.Invoke(null, new object[] { options });
 
-            Assert.AreEqual(2, headers.Count);
-            Assert.AreEqual("api-key", headers["GameFrameX-Api-Key"]);
+            Assert.AreEqual(3, headers.Count);
+            Assert.AreEqual("api-key", headers["GameFrameX-Tenant-Id"]);
+            Assert.AreEqual("tenant-secret", headers["GameFrameX-Tenant-Secret"]);
             Assert.AreEqual("app-secret", headers["GameFrameX-App-Secret"]);
+            Assert.IsFalse(headers.ContainsKey("GameFrameX-Api-Key"));
             Assert.IsFalse(headers.ContainsKey("GameFrameX-App-Id"));
         }
     }

@@ -39,6 +39,7 @@ namespace GameFrameX.Startup.Runtime
             GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXApiKeyHeader);
             GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppIdHeader);
             GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppSecretHeader);
+            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXTenantSecretHeader);
 
             foreach (var header in StartupProcedureUtility.CreateGameFrameXHeaders(options))
             {
