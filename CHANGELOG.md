@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.2.0...1.3.0) (2026-07-18)
+
+
+### Features
+
+* **startup:** 支持租户认证请求头 ([5c70459](https://github.com/gameframex/com.gameframex.unity.startup/commit/5c70459e5e3f4cb6b6835ab62f9cc8d0db9fab3d)), closes [#1](https://github.com/gameframex/com.gameframex.unity.startup/issues/1) [#1](https://github.com/gameframex/com.gameframex.unity.startup/issues/1)
+
 # [1.2.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.1.0...1.2.0) (2026-07-06)
 
 
