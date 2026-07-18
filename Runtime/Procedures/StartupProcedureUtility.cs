@@ -16,9 +16,10 @@ namespace GameFrameX.Startup.Runtime
     /// </remarks>
     internal static class StartupProcedureUtility
     {
-        public const string GameFrameXApiKeyHeader = "GameFrameX-Api-Key";
+        public const string GameFrameXApiKeyHeader = "GameFrameX-Tenant-Id";
         public const string GameFrameXAppIdHeader = "GameFrameX-App-Id";
         public const string GameFrameXAppSecretHeader = "GameFrameX-App-Secret";
+        public const string GameFrameXTenantSecretHeader = "GameFrameX-Tenant-Secret";
 
         /// <summary>
         /// 从流程所有者中获取启动选项。
@@ -104,7 +105,7 @@ namespace GameFrameX.Startup.Runtime
 
         public static Dictionary<string, string> CreateGameFrameXHeaders(StartupOptions options)
         {
-            var headers = new Dictionary<string, string>(3);
+            var headers = new Dictionary<string, string>(4);
             if (options == null)
             {
                 return headers;
@@ -113,6 +114,7 @@ namespace GameFrameX.Startup.Runtime
             AddHeaderIfNotEmpty(headers, GameFrameXApiKeyHeader, options.GameFrameXApiKey);
             AddHeaderIfNotEmpty(headers, GameFrameXAppIdHeader, options.GameFrameXAppId);
             AddHeaderIfNotEmpty(headers, GameFrameXAppSecretHeader, options.GameFrameXAppSecret);
+            AddHeaderIfNotEmpty(headers, GameFrameXTenantSecretHeader, options.GameFrameXTenantSecret);
             return headers;
         }
 

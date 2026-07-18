@@ -12,6 +12,7 @@ namespace GameFrameX.Startup.Runtime
         [Header("Admin")] [Tooltip("GameFrameX 管理后台的租户ID")]
         public string GameFrameXApiKey = "";
 
+        [Tooltip("GameFrameX 管理后台的租户密钥")] public string GameFrameXTenantSecret = "";
         [Tooltip("GameFrameX 管理后台的应用ID")] public string GameFrameXAppId = "";
         [Tooltip("GameFrameX 管理后台的应用密钥")] public string GameFrameXAppSecret = "";
 
