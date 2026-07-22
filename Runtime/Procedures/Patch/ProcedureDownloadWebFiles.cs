@@ -1,12 +1,10 @@
 using System.Collections;
-
 using Cysharp.Threading.Tasks;
-
 using GameFrameX.Asset.Runtime;
+using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-
 using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
@@ -23,7 +21,7 @@ namespace GameFrameX.Startup.Runtime
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameApp.Event.Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
             BeginDownload(procedureOwner).ToUniTask();
         }
 
@@ -41,17 +39,12 @@ namespace GameFrameX.Startup.Runtime
 
             downloader.OnDownloadErrorCallback = data =>
             {
-                GameApp.Event.Fire(this, AssetWebFileDownloadFailedEventArgs.Create(data.PackageName, data.FileName, data.ErrorInfo));
+                GameEntry.GetComponent<EventComponent>().Fire(this, AssetWebFileDownloadFailedEventArgs.Create(data.PackageName, data.FileName, data.ErrorInfo));
                 ChangeState<ProcedureCreateDownloader>(procedureOwner);
             };
             downloader.OnDownloadProgressCallback = data =>
             {
-                GameApp.Event.Fire(this, AssetDownloadProgressUpdateEventArgs.Create(
-                    data.PackageName,
-                    data.TotalDownloadCount,
-                    data.CurrentDownloadCount,
-                    data.TotalDownloadBytes,
-                    data.CurrentDownloadBytes));
+                GameEntry.GetComponent<EventComponent>().Fire(this, AssetDownloadProgressUpdateEventArgs.Create(data.PackageName, data.TotalDownloadCount, data.CurrentDownloadCount, data.TotalDownloadBytes, data.CurrentDownloadBytes));
                 StartupProcedureUtility.SetDownloadProgress(
                     StartupProcedureUtility.GetUIHandler(procedureOwner),
                     data.CurrentDownloadBytes,

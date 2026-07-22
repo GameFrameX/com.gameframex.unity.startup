@@ -24,15 +24,15 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-
-            if (GameApp.Asset.GamePlayMode == EPlayMode.EditorSimulateMode)
+            var assetComponent = GameEntry.GetComponent<AssetComponent>();
+            if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
                 Debug.Log("Editor simulate mode, skip global info request.");
                 ChangeState<ProcedureGetAppVersionInfoState>(procedureOwner);
                 return;
             }
 
-            if (GameApp.Asset.GamePlayMode == EPlayMode.OfflinePlayMode)
+            if (assetComponent.GamePlayMode == EPlayMode.OfflinePlayMode)
             {
                 Debug.Log("Offline play mode, skip remote startup requests.");
                 ChangeState<ProcedurePatchInit>(procedureOwner);
@@ -72,7 +72,7 @@ namespace GameFrameX.Startup.Runtime
                              {
                                  try
                                  {
-                                     var json = await GameApp.Web.PostToString(url, jsonParams);
+                                     var json = await GameEntry.GetComponent<WebComponent>().PostToString(url, jsonParams);
                                      var responseGlobalInfo = json.Result.ToHttpJsonResultData<ResponseGlobalInfo>();
                                      if (!responseGlobalInfo.IsSuccess)
                                      {

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-
 using Cysharp.Threading.Tasks;
+using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
+using GameFrameX.Localization.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
 using UnityEngine;
@@ -142,7 +143,7 @@ namespace GameFrameX.Startup.Runtime
             }
 
             startupHttpParams.Language = Application.systemLanguage.ToString();
-            startupHttpParams.UserLanguage = GameApp.Localization.Language;
+            startupHttpParams.UserLanguage = GameEntry.GetComponent<LocalizationComponent>().Language;
             startupHttpParams.AppVersion = Application.version;
             startupHttpParams.DeviceUniqueIdentifier = SystemInfo.Runtime.BlankDeviceUniqueIdentifier.DeviceUniqueIdentifier;
             startupHttpParams.Platform = ApplicationHelper.PlatformName;
@@ -162,7 +163,7 @@ namespace GameFrameX.Startup.Runtime
         {
             var result = StartupResult.Fail(procedureName, failedUrl, errorMessage);
             GetUIHandler(procedureOwner)?.SetTipText(errorMessage);
-            GameApp.Event.Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
+            GameEntry.GetComponent<EventComponent>().Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
             GetCompletionSource(procedureOwner)?.TrySetResult(result);
         }
 
@@ -175,7 +176,7 @@ namespace GameFrameX.Startup.Runtime
         /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
         public static void CompleteSuccess(IFsm<IProcedureManager> procedureOwner)
         {
-            GameApp.Event.Fire(procedureOwner, StartupCompletedEventArgs.Create());
+            GameEntry.GetComponent<EventComponent>().Fire(procedureOwner, StartupCompletedEventArgs.Create());
             GetCompletionSource(procedureOwner)?.TrySetResult(StartupResult.Succeed());
         }
 

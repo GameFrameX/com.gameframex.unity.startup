@@ -1,9 +1,8 @@
 using Cysharp.Threading.Tasks;
-
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-using GameFrameX.Startup.Runtime;
+using GameFrameX.Web.Runtime;
 
 namespace GameFrameX.Startup.Runtime
 {
@@ -36,14 +35,15 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
-            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXApiKeyHeader);
-            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppIdHeader);
-            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppSecretHeader);
-            GameApp.Web.RemoveBaseHeader(StartupProcedureUtility.GameFrameXTenantSecretHeader);
+            var webComponent = GameEntry.GetComponent<WebComponent>();
+            webComponent.RemoveBaseHeader(StartupProcedureUtility.GameFrameXApiKeyHeader);
+            webComponent.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppIdHeader);
+            webComponent.RemoveBaseHeader(StartupProcedureUtility.GameFrameXAppSecretHeader);
+            webComponent.RemoveBaseHeader(StartupProcedureUtility.GameFrameXTenantSecretHeader);
 
             foreach (var header in StartupProcedureUtility.CreateGameFrameXHeaders(options))
             {
-                GameApp.Web.AddBaseHeader(header.Key, header.Value);
+                webComponent.AddBaseHeader(header.Key, header.Value);
             }
 
             await uiHandler.StartAsync(options.LauncherUIResName);

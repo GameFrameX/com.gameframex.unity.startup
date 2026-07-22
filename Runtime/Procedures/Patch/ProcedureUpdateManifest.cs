@@ -3,6 +3,7 @@ using System.Collections;
 using Cysharp.Threading.Tasks;
 
 using GameFrameX.Asset.Runtime;
+using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
@@ -37,17 +38,18 @@ namespace GameFrameX.Startup.Runtime
         /// <returns>更新完成的协程 / Update completion coroutine</returns>
         private async UniTask UpdateManifestAsync(IFsm<IProcedureManager> procedureOwner)
         {
-            if (GameApp.Asset.GamePlayMode == EPlayMode.OfflinePlayMode)
+            var assetComponent = GameEntry.GetComponent<AssetComponent>();
+            if (assetComponent.GamePlayMode == EPlayMode.OfflinePlayMode)
             {
                 var versionValue = procedureOwner.GetData<VarString>(AssetComponent.BuildInPackageName + "Version");
-                var package = GameApp.Asset.GetAssetsPackage(AssetComponent.BuildInPackageName);
+                var package = assetComponent.GetAssetsPackage(AssetComponent.BuildInPackageName);
                 var operation = package.UpdatePackageManifestAsync(versionValue.Value);
                 await operation.ToUniTask();
                 ChangeState<ProcedurePatchDone>(procedureOwner);
                 return;
             }
 
-            GameApp.Event.Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateManifest));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateManifest));
             await UpdateManifest(procedureOwner).ToUniTask();
         }
 
@@ -65,7 +67,8 @@ namespace GameFrameX.Startup.Runtime
 
             var package = YooAssets.GetPackage(AssetComponent.BuildInPackageName);
             UpdatePackageManifestOperation operation;
-            if (GameApp.Asset.GamePlayMode == EPlayMode.EditorSimulateMode)
+            var assetComponent = GameEntry.GetComponent<AssetComponent>();
+            if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
                 operation = package.UpdatePackageManifestAsync("Simulate");
             }
@@ -85,7 +88,7 @@ namespace GameFrameX.Startup.Runtime
             }
 
             Debug.LogError(operation.Error);
-            GameApp.Event.Fire(this, AssetPatchManifestUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchManifestUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
             ChangeState<ProcedureUpdateManifest>(procedureOwner);
         }
     }

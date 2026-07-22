@@ -5,7 +5,6 @@
         "GameFrameX.Procedure.Runtime",
         "GameFrameX.FSM.Runtime",
         "GameFrameX.Event.Runtime",
-        "GameFrameX.Entry.Runtime",
         "GameFrameX.Web.Runtime",
         "GameFrameX.GlobalConfig.Runtime",
         "GameFrameX.SystemInfo.Runtime",

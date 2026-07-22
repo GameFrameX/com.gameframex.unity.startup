@@ -3,6 +3,7 @@ using System.Collections;
 using Cysharp.Threading.Tasks;
 
 using GameFrameX.Asset.Runtime;
+using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
@@ -24,7 +25,7 @@ namespace GameFrameX.Startup.Runtime
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameApp.Event.Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateStaticVersion));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateStaticVersion));
             GetStaticVersion(procedureOwner).ToUniTask();
         }
 
@@ -44,7 +45,8 @@ namespace GameFrameX.Startup.Runtime
 
             if (operation.Status == EOperationStatus.Succeed)
             {
-                if (GameApp.Asset.GamePlayMode == EPlayMode.OfflinePlayMode)
+                var assetComponent = GameEntry.GetComponent<AssetComponent>();
+                if (assetComponent.GamePlayMode == EPlayMode.OfflinePlayMode)
                 {
                     var versionValue = ReferencePool.Acquire<VarString>();
                     versionValue.SetValue(operation.PackageVersion);
@@ -57,7 +59,7 @@ namespace GameFrameX.Startup.Runtime
             }
 
             Debug.LogError(operation.Error);
-            GameApp.Event.Fire(this, AssetStaticVersionUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetStaticVersionUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
             ChangeState<ProcedureUpdateStaticVersion>(procedureOwner);
         }
     }

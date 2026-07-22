@@ -1,8 +1,8 @@
 using GameFrameX.Asset.Runtime;
+using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-
 using UnityEngine;
 using YooAsset;
 
@@ -20,7 +20,7 @@ namespace GameFrameX.Startup.Runtime
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameApp.Event.Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
             CreateDownloader(procedureOwner);
         }
 
@@ -45,10 +45,7 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
-            GameApp.Event.Fire(this, AssetFoundUpdateFilesEventArgs.Create(
-                downloader.GetPackageName(),
-                downloader.TotalDownloadCount,
-                downloader.TotalDownloadBytes));
+            GameEntry.GetComponent<EventComponent>().Fire(this, AssetFoundUpdateFilesEventArgs.Create(downloader.GetPackageName(), downloader.TotalDownloadCount, downloader.TotalDownloadBytes));
             ChangeState<ProcedureDownloadWebFiles>(procedureOwner);
         }
     }

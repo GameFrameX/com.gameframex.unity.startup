@@ -77,7 +77,7 @@ namespace GameFrameX.Startup.Runtime
         /// <param name="data">全局信息数据对象 / Global info data object</param>
         public static void ApplyGlobalInfo(string responseJson, ResponseGlobalInfo data)
         {
-            var globalConfig = GameApp.GlobalConfig;
+            var globalConfig = GameEntry.GetComponent<GlobalConfigComponent>();
             globalConfig.SetOriginalData(responseJson);
             globalConfig.CheckAppVersionUrl = data.CheckAppVersionUrl;
             globalConfig.CheckResourceVersionUrl = data.CheckResourceVersionUrl;

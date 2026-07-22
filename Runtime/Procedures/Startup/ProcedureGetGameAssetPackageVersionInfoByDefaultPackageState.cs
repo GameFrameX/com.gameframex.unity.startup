@@ -44,7 +44,7 @@ namespace GameFrameX.Startup.Runtime
             {
                 try
                 {
-                    var json = await GameApp.Web.PostToString(GameApp.GlobalConfig.CheckResourceVersionUrl, jsonParams);
+                    var json = await GameEntry.GetComponent<WebComponent>().PostToString(GameEntry.GetComponent<GlobalConfigComponent>().CheckResourceVersionUrl, jsonParams);
                     var httpJsonResult = Utility.Json.ToObject<HttpJsonResult>(json.Result);
                     if (httpJsonResult.Code <= 0)
                     {
@@ -71,11 +71,7 @@ namespace GameFrameX.Startup.Runtime
                         return;
                     }
 
-                    StartupProcedureUtility.CompleteFailure(
-                        procedureOwner,
-                        nameof(ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState),
-                        GameApp.GlobalConfig.CheckResourceVersionUrl,
-                        "Failed to get asset package version info.");
+                    StartupProcedureUtility.CompleteFailure(procedureOwner, nameof(ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState), GameEntry.GetComponent<GlobalConfigComponent>().CheckResourceVersionUrl, "Failed to get asset package version info.");
                     return;
                 }
 

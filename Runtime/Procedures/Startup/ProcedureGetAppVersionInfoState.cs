@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.GlobalConfig.Runtime;
 using GameFrameX.Procedure.Runtime;
@@ -22,8 +23,8 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-
-            if (GameApp.Asset.GamePlayMode == EPlayMode.EditorSimulateMode)
+            var assetComponent = GameEntry.GetComponent<AssetComponent>();
+            if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
                 Debug.Log("Editor simulate mode, skip app version request.");
                 ChangeState<ProcedurePatchInit>(procedureOwner);
@@ -52,7 +53,7 @@ namespace GameFrameX.Startup.Runtime
             {
                 try
                 {
-                    var json = await GameApp.Web.PostToString(GameApp.GlobalConfig.CheckAppVersionUrl, jsonParams);
+                    var json = await GameEntry.GetComponent<WebComponent>().PostToString(GameEntry.GetComponent<GlobalConfigComponent>().CheckAppVersionUrl, jsonParams);
                     var httpJsonResult = Utility.Json.ToObject<HttpJsonResult>(json.Result);
                     if (httpJsonResult.Code <= 0)
                     {
@@ -78,11 +79,7 @@ namespace GameFrameX.Startup.Runtime
                         return;
                     }
 
-                    StartupProcedureUtility.CompleteFailure(
-                        procedureOwner,
-                        nameof(ProcedureGetAppVersionInfoState),
-                        GameApp.GlobalConfig.CheckAppVersionUrl,
-                        "Failed to get app version info.");
+                    StartupProcedureUtility.CompleteFailure(procedureOwner, nameof(ProcedureGetAppVersionInfoState), GameEntry.GetComponent<GlobalConfigComponent>().CheckAppVersionUrl, "Failed to get app version info.");
                     return;
                 }
 
@@ -99,10 +96,10 @@ namespace GameFrameX.Startup.Runtime
             if (gameAppVersion.IsUpgrade)
             {
                 var shouldContinue = await uiHandler.ShowUpgradeAsync(new StartupUpgradeInfo(
-                    gameAppVersion.IsForce,
-                    gameAppVersion.AppDownloadUrl,
-                    gameAppVersion.UpdateTitle,
-                    gameAppVersion.UpdateAnnouncement));
+                                                                          gameAppVersion.IsForce,
+                                                                          gameAppVersion.AppDownloadUrl,
+                                                                          gameAppVersion.UpdateTitle,
+                                                                          gameAppVersion.UpdateAnnouncement));
 
                 if (!shouldContinue)
                 {

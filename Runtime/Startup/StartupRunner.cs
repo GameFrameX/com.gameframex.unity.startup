@@ -1,11 +1,9 @@
 using System;
-
 using Cysharp.Threading.Tasks;
-
+using GameFrameX.Asset.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
-using GameFrameX.Startup.Runtime;
 using YooAsset;
 
 namespace GameFrameX.Startup.Runtime
@@ -128,7 +126,7 @@ namespace GameFrameX.Startup.Runtime
 
         private static void ApplyAssetPlayMode(StartupOptions options)
         {
-            GameApp.Asset.GamePlayMode = NormalizeAssetPlayMode(options.GamePlayMode);
+            GameEntry.GetComponent<AssetComponent>().GamePlayMode = NormalizeAssetPlayMode(options.GamePlayMode);
         }
 
         private static EPlayMode NormalizeAssetPlayMode(EPlayMode playMode)
