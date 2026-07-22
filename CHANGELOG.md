@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.3.0...1.3.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* **deps:** 固定 unitask 依赖版本 ([55f5b3a](https://github.com/gameframex/com.gameframex.unity.startup/commit/55f5b3abf95271fedc4dfdb106dda2baa897871a))
+
 # [1.3.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.2.0...1.3.0) (2026-07-18)
 
 
