@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.0...1.4.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* **deps:** 新增 systeminfo 依赖 ([9ed8f80](https://github.com/gameframex/com.gameframex.unity.startup/commit/9ed8f809874750741c57b94f5e6ef01f9dc1c6bd))
+
 # [1.4.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.3.1...1.4.0) (2026-07-22)
 
 
