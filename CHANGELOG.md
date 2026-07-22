@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.3.1...1.4.0) (2026-07-22)
+
+
+### Features
+
+* **startup:** 迁移至 GameEntry 组件访问模式 ([f75b01d](https://github.com/gameframex/com.gameframex.unity.startup/commit/f75b01d1571f683f24e94024ef77748668b2a38a))
+
 ## [1.3.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.3.0...1.3.1) (2026-07-22)
 
 
