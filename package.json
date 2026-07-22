@@ -35,7 +35,7 @@
     "com.gameframex.unity.setting": "1.5.3",
     "com.gameframex.unity.asset": "3.0.2",
     "com.gameframex.unity.tuyoogame.yooasset": "2.9.4",
-    "com.gameframex.unity.cysharp.unitask": "https://cnb.cool/gameframex/com.gameframex.unity.cysharp.unitask.git"
+    "com.gameframex.unity.cysharp.unitask": "2.6.1"
   },
   "publishConfig": {
     "access": "public",
