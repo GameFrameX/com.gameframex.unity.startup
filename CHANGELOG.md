@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.1...1.4.2) (2026-07-23)
+
+
+### Bug Fixes
+
+* **asmdef:** 补齐 Runtime 引用包的 versionDefines 宏定义 ([4d45487](https://github.com/gameframex/com.gameframex.unity.startup/commit/4d45487af08ff8a69fcfb3c9dd6fe07a8f0dcb05)), closes [#3](https://github.com/gameframex/com.gameframex.unity.startup/issues/3) [#3](https://github.com/gameframex/com.gameframex.unity.startup/issues/3)
+
 ## [1.4.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.0...1.4.1) (2026-07-22)
 
 
