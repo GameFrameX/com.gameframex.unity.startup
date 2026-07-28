@@ -5,6 +5,7 @@ using GameFrameX.Fsm.Runtime;
 using GameFrameX.GlobalConfig.Runtime;
 using GameFrameX.Procedure.Runtime;
 using GameFrameX.Runtime;
+using GameFrameX.Setting.Runtime;
 using GameFrameX.Web.Runtime;
 
 namespace GameFrameX.Startup.Runtime
@@ -223,7 +224,7 @@ namespace GameFrameX.Startup.Runtime
         {
             value = string.Empty;
 #if ENABLE_GAME_FRAME_X_SETTING
-            var setting = GameApp.Setting;
+            var setting = GameEntry.GetComponent<SettingComponent>();
             if (setting == null || !setting.HasSetting(key))
             {
                 return false;
@@ -245,7 +246,7 @@ namespace GameFrameX.Startup.Runtime
             }
 
 #if ENABLE_GAME_FRAME_X_SETTING
-            var setting = GameApp.Setting;
+            var setting = GameEntry.GetComponent<SettingComponent>();
             if (setting == null)
             {
                 return;
