@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.2...1.4.3) (2026-07-29)
+
+
+### Bug Fixes
+
+* use GameEntry.GetComponent for SettingComponent ([ec89f9e](https://github.com/gameframex/com.gameframex.unity.startup/commit/ec89f9ecf3d05e0a8a87b08f75320d62bcc173e9))
+
 ## [1.4.2](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.1...1.4.2) (2026-07-23)
 
 
