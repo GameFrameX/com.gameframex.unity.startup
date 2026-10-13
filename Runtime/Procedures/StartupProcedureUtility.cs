@@ -192,8 +192,8 @@ namespace GameFrameX.Startup.Runtime
         public static void SetDownloadProgress(IStartupUIHandler uiHandler, long currentBytes, long totalBytes)
         {
             var progress = totalBytes <= 0 ? 0f : currentBytes / (totalBytes * 1f);
-            var currentSize = Utility.File.GetBytesSize(currentBytes);
-            var totalSize = Utility.File.GetBytesSize(totalBytes);
+            var currentSize = FileHelper.GetBytesSize(currentBytes);
+            var totalSize = FileHelper.GetBytesSize(totalBytes);
             uiHandler?.SetProgress(progress, currentSize + "/" + totalSize);
         }
     }
