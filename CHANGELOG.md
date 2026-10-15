@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.0...1.5.1) (2026-10-15)
+
+
+### Bug Fixes
+
+* **dependencies:** 对齐依赖至实际发布版本 ([bc9b0f6](https://github.com/gameframex/com.gameframex.unity.startup/commit/bc9b0f6cacad4439467e7d0d14fda7b7280a8c17))
+
 # [1.5.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.3...1.5.0) (2026-10-15)
 
 
