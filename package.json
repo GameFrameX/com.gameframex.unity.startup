@@ -27,13 +27,13 @@
   "licensesUrl": "https://github.com/gameframex/com.gameframex.unity.startup/blob/main/LICENSE.md",
   "dependencies": {
     "com.gameframex.unity": "3.0.0",
-    "com.gameframex.unity.procedure": "1.2.3",
+    "com.gameframex.unity.procedure": "2.0.0",
     "com.gameframex.unity.fsm": "2.0.0",
     "com.gameframex.unity.event": "2.0.0",
-    "com.gameframex.unity.web": "1.4.0",
+    "com.gameframex.unity.web": "2.0.0",
     "com.gameframex.unity.globalconfig": "1.3.3",
     "com.gameframex.unity.setting": "2.0.0",
-    "com.gameframex.unity.asset": "3.0.2",
+    "com.gameframex.unity.asset": "4.0.0",
     "com.gameframex.unity.tuyoogame.yooasset": "3.1.0",
     "com.gameframex.unity.systeminfo": "3.1.0",
     "com.gameframex.unity.cysharp.unitask": "2.6.1"
