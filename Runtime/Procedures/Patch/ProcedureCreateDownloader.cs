@@ -20,7 +20,7 @@ namespace GameFrameX.Startup.Runtime
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
             CreateDownloader(procedureOwner);
         }
 
@@ -45,7 +45,7 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetFoundUpdateFilesEventArgs.Create(downloader.GetPackageName(), downloader.TotalDownloadCount, downloader.TotalDownloadBytes));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetFoundUpdateFilesEventArgs.Create(downloader.GetPackageName(), downloader.TotalDownloadCount, downloader.TotalDownloadBytes));
             ChangeState<ProcedureDownloadWebFiles>(procedureOwner);
         }
     }

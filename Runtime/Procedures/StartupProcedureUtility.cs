@@ -163,7 +163,7 @@ namespace GameFrameX.Startup.Runtime
         {
             var result = StartupResult.Fail(procedureName, failedUrl, errorMessage);
             GetUIHandler(procedureOwner)?.SetTipText(errorMessage);
-            GameEntry.GetComponent<EventComponent>().Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
             GetCompletionSource(procedureOwner)?.TrySetResult(result);
         }
 
@@ -176,7 +176,7 @@ namespace GameFrameX.Startup.Runtime
         /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
         public static void CompleteSuccess(IFsm<IProcedureManager> procedureOwner)
         {
-            GameEntry.GetComponent<EventComponent>().Fire(procedureOwner, StartupCompletedEventArgs.Create());
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupCompletedEventArgs.Create());
             GetCompletionSource(procedureOwner)?.TrySetResult(StartupResult.Succeed());
         }
 

@@ -1,14 +1,12 @@
 using GameFrameX.Event.Runtime;
 using GameFrameX.Runtime;
 
-using UnityEngine.Scripting;
-
 namespace GameFrameX.Startup.Runtime
 {
     /// <summary>
     /// 启动流程成功完成事件。ProcedureGameLauncherState 完成热更加载 + UI Dispose 后触发。
     /// </summary>
-    [Preserve]
+    [UnityEngine.Scripting.Preserve]
     public sealed class StartupCompletedEventArgs : GameEventArgs
     {
         /// <summary>

@@ -21,7 +21,7 @@ namespace GameFrameX.Startup.Runtime
         protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
             BeginDownload(procedureOwner).ToUniTask();
         }
 
@@ -39,12 +39,12 @@ namespace GameFrameX.Startup.Runtime
 
             downloader.OnDownloadErrorCallback = data =>
             {
-                GameEntry.GetComponent<EventComponent>().Fire(this, AssetWebFileDownloadFailedEventArgs.Create(data.PackageName, data.FileName, data.ErrorInfo));
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetWebFileDownloadFailedEventArgs.Create(data.PackageName, data.FileName, data.ErrorInfo));
                 ChangeState<ProcedureCreateDownloader>(procedureOwner);
             };
             downloader.OnDownloadProgressCallback = data =>
             {
-                GameEntry.GetComponent<EventComponent>().Fire(this, AssetDownloadProgressUpdateEventArgs.Create(data.PackageName, data.TotalDownloadCount, data.CurrentDownloadCount, data.TotalDownloadBytes, data.CurrentDownloadBytes));
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetDownloadProgressUpdateEventArgs.Create(data.PackageName, data.TotalDownloadCount, data.CurrentDownloadCount, data.TotalDownloadBytes, data.CurrentDownloadBytes));
                 StartupProcedureUtility.SetDownloadProgress(
                     StartupProcedureUtility.GetUIHandler(procedureOwner),
                     data.CurrentDownloadBytes,

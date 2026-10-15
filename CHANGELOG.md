@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Bug Fixes / 重构
+
+* **startup:** 5 个 Patch Procedure（`ProcedureUpdateStaticVersion` / `ProcedureUpdateManifest` / `ProcedureCreateDownloader` / `ProcedureDownloadWebFiles` / `ProcedurePatchDone`）与 `StartupProcedureUtility` 的事件发布由 `GameEntry.GetComponent<EventComponent>()` 迁移为 `GameFrameworkEntry.GetModule<IEventManager>()`，与 C9 组件层瘦身契约对齐
+
 ## [1.4.3](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.2...1.4.3) (2026-07-29)
 
 

@@ -20,7 +20,7 @@ namespace GameFrameX.Startup.Runtime
         {
             base.OnEnter(procedureOwner);
 
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.PatchDone));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.PatchDone));
             var uiHandler = StartupProcedureUtility.GetUIHandler(procedureOwner);
             uiHandler?.SetProgressUpdateFinish();
             uiHandler?.SetTipText(string.Empty);

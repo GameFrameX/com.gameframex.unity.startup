@@ -49,7 +49,7 @@ namespace GameFrameX.Startup.Runtime
                 return;
             }
 
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateManifest));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateManifest));
             await UpdateManifest(procedureOwner).ToUniTask();
         }
 
@@ -58,6 +58,7 @@ namespace GameFrameX.Startup.Runtime
         /// </summary>
         /// <remarks>
         /// Executes the package manifest update coroutine with retry on failure.
+        /// Loads the manifest from local storage (sandbox or buildin) when the version came from local fallback.
         /// </remarks>
         /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
         /// <returns>清单更新协程 / Manifest update coroutine</returns>
@@ -66,7 +67,7 @@ namespace GameFrameX.Startup.Runtime
             yield return new WaitForSecondsRealtime(0.1f);
 
             var package = YooAssets.GetPackage(AssetComponent.BuildInPackageName);
-            UpdatePackageManifestOperation operation;
+            AsyncOperationBase operation;
             var assetComponent = GameEntry.GetComponent<AssetComponent>();
             if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
@@ -75,7 +76,16 @@ namespace GameFrameX.Startup.Runtime
             else
             {
                 var versionValue = procedureOwner.GetData<VarString>(AssetComponent.BuildInPackageName + "Version");
-                operation = package.UpdatePackageManifestAsync(versionValue.Value);
+
+                // 版本来自本地回退时，清单同样从本地加载（沙盒 -> 包内），不再请求远端
+                if (procedureOwner.HasData(AssetComponent.BuildInPackageName + "VersionFromLocal"))
+                {
+                    operation = package.RequestLocalManifestAsync(versionValue.Value);
+                }
+                else
+                {
+                    operation = package.UpdatePackageManifestAsync(versionValue.Value);
+                }
             }
 
             yield return operation;
@@ -83,12 +93,13 @@ namespace GameFrameX.Startup.Runtime
             if (operation.Status == EOperationStatus.Succeed)
             {
                 procedureOwner.RemoveData(AssetComponent.BuildInPackageName + "Version");
+                procedureOwner.RemoveData(AssetComponent.BuildInPackageName + "VersionFromLocal");
                 ChangeState<ProcedureCreateDownloader>(procedureOwner);
                 yield break;
             }
 
             Debug.LogError(operation.Error);
-            GameEntry.GetComponent<EventComponent>().Fire(this, AssetPatchManifestUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
+            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchManifestUpdateFailedEventArgs.Create(AssetComponent.BuildInPackageName, operation.Error));
             ChangeState<ProcedureUpdateManifest>(procedureOwner);
         }
     }

@@ -13,7 +13,7 @@ namespace GameFrameX.Startup.Runtime.Tests
         public void EventId_IsStringFullName()
         {
             Assert.AreEqual(
-                "GameFrameX.Startup.Runtime.Events.StartupFailedEventArgs",
+                typeof(StartupFailedEventArgs).FullName,
                 StartupFailedEventArgs.EventId);
         }
 

@@ -1,14 +1,12 @@
 using GameFrameX.Event.Runtime;
 using GameFrameX.Runtime;
 
-using UnityEngine.Scripting;
-
 namespace GameFrameX.Startup.Runtime
 {
     /// <summary>
     /// 启动流程失败事件。任一 Procedure 因网络或业务失败导致流程停止时触发。
     /// </summary>
-    [Preserve]
+    [UnityEngine.Scripting.Preserve]
     public sealed class StartupFailedEventArgs : GameEventArgs
     {
         /// <summary>

@@ -1,5 +1,6 @@
 using System.IO;
 
+using GameFrameX.Runtime;
 using GameFrameX.Startup.Runtime;
 
 using NUnit.Framework;
@@ -11,6 +12,13 @@ namespace GameFrameX.Startup.Runtime.Tests
     [TestFixture]
     internal sealed class StartupHttpParamsTests
     {
+
+        [SetUp]
+        public void SetUp()
+        {
+            // EditMode 下框架 helpers 不会被自动注入启动初始化（BaseComponent 未运行），ToJson 依赖 JSON helper，这里本地装一个。
+            Utility.Json.SetJsonHelper(new LitJsonHelper());
+        }
         [Test]
         public void FromOptions_CopiesProjectConfigFields()
         {
