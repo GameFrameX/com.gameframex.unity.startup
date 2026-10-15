@@ -1,3 +1,11 @@
+## [1.5.3](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.2...1.5.3) (2026-10-15)
+
+
+### Bug Fixes
+
+* **dependencies:** web 依赖升至 2.0.1 ([1d9a611](https://github.com/gameframex/com.gameframex.unity.startup/commit/1d9a61107a7c33f5e839ee03debb175428f87838))
+* **startup:** 全局信息失败日志携带服务端错误消息 ([1546914](https://github.com/gameframex/com.gameframex.unity.startup/commit/1546914468643664e315e8fb110232cb7a8084fc))
+
 ## [1.5.2](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.1...1.5.2) (2026-10-15)
 
 
