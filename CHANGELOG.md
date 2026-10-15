@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.4.3...1.5.0) (2026-10-15)
+
+
+### Features
+
+* **startup:** 新增 iOS 联网授权门禁并迁移模块直达 ([0a7084c](https://github.com/gameframex/com.gameframex.unity.startup/commit/0a7084caebb592521e309b8e4205e04286c57094))
+
 ## [Unreleased]
 
 ### Bug Fixes / 重构
