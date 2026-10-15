@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.1...1.5.2) (2026-10-15)
+
+
+### Bug Fixes
+
+* **dependencies:** asset 依赖升至 5.0.0 ([c5ebf39](https://github.com/gameframex/com.gameframex.unity.startup/commit/c5ebf390c45d27db5be63576f260de52117a7ea8))
+
 ## [1.5.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.0...1.5.1) (2026-10-15)
 
 
