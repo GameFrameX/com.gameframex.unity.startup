@@ -76,7 +76,7 @@ namespace GameFrameX.Startup.Runtime
                                      var responseGlobalInfo = json.Result.ToHttpJsonResultData<ResponseGlobalInfo>();
                                      if (!responseGlobalInfo.IsSuccess)
                                      {
-                                         return UrlAttemptResult.Fail("Global info server returned code " + responseGlobalInfo.Code);
+                                        return UrlAttemptResult.Fail("Global info server returned code " + responseGlobalInfo.Code + (string.IsNullOrEmpty(responseGlobalInfo.Message) ? string.Empty : " " + responseGlobalInfo.Message));
                                      }
 
                                      StartupNetworkCacheUtility.ApplyGlobalInfo(json.Result, responseGlobalInfo.Data);
