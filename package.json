@@ -3,7 +3,7 @@
   "displayName": "Game Frame X Startup",
   "category": "GameFrameX",
   "description": "GameFrameX Startup — Unity game startup orchestration package. StartupRunner.Run drives an 11-procedure FSM (global info, app version, asset package version, patch init, static version, manifest, downloader, web files, patch done, game launcher) awaitable as UniTask<StartupResult>, with tenant-authenticated HTTP params, ordered multi-URL failover with bounded retries, WebGL skip-remote mode, an iOS first-launch network permission gate, offline fallback to local resource versions, pluggable UI / hotfix-launcher / HTTP-params interfaces, and completed / failed events (failed procedure, url, error) on the event bus. Docs: https://gameframex.doc.alianblank.com\n\nGameFrameX Startup — Unity 启动编排功能包。StartupRunner.Run 驱动 11 状态过程 FSM（全局信息、应用版本、资源包版本、补丁初始化、静态版本、清单、下载器、Web 文件、补丁完成、游戏启动器），可以 UniTask<StartupResult> 等待；内置租户认证 HTTP 参数、有序多 URL 主备与有界重试、WebGL 跳过远程模式、iOS 首次联网授权门禁、断网回退本地资源版本、可插拔 UI/热更启动器/HTTP 参数接口，完成/失败事件（含失败过程、URL、错误信息）经事件总线发布。文档：https://gameframex.doc.alianblank.com",
-  "version": "1.5.3",
+  "version": "2.0.0",
   "unity": "2019.4",
   "keywords": [
     "GameFrameX",

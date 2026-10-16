@@ -1,3 +1,23 @@
+# [2.0.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.3...2.0.0) (2026-10-16)
+
+
+### Bug Fixes
+
+* **startup:** 启动缓存读取端改用完整响应体解析 ([2710117](https://github.com/gameframex/com.gameframex.unity.startup/commit/2710117c14964e8bada5b6fc758c1de15ae6adb4))
+
+
+### Features
+
+* **startup:** iOS 联网授权门禁按授权状态探测放行 ([8f184c8](https://github.com/gameframex/com.gameframex.unity.startup/commit/8f184c82cdb8d236a60e6afc0ba9ce4544795c9e))
+* **startup:** 引入 StartupContext 单 key 注入并加异常兜底 ([ae297ce](https://github.com/gameframex/com.gameframex.unity.startup/commit/ae297ce528d6a986d0fbf9cbc98eba6a8a6db667))
+
+
+### BREAKING CHANGES
+
+* **startup:** BlackBoardKeys 移除 StartupOptions/StartupUIHandler/
+StartupHotfixLauncher/StartupCompletionSource/StartupHttpParamsProvider
+五个旧常量，改为单个 StartupContext 常量，FSM 注入与读取路径同步切换。
+
 ## [1.5.3](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.2...1.5.3) (2026-10-15)
 
 
