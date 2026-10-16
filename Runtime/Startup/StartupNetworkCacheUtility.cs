@@ -21,8 +21,8 @@ namespace GameFrameX.Startup.Runtime
     {
         private const string CachePrefix = "GameFrameX.Startup.NetworkCache";
         private const string GlobalInfoKey = CachePrefix + ".GlobalInfo";
-        private const string AppVersionKey = CachePrefix + ".AppVersion";
-        private const string AssetPackageVersionKey = CachePrefix + ".AssetPackageVersion";
+        private const string AppVersionKey = CachePrefix + ".AppVersion.v2";
+        private const string AssetPackageVersionKey = CachePrefix + ".AssetPackageVersion.v2";
 
         /// <summary>
         /// 保存全局信息到缓存。
@@ -87,15 +87,16 @@ namespace GameFrameX.Startup.Runtime
         }
 
         /// <summary>
-        /// 保存应用版本信息到缓存。
+        /// 保存应用版本信息到缓存（完整响应体 JSON）。
         /// </summary>
         /// <remarks>
-        /// Saves the application version info to the local cache.
+        /// Saves the application version info (full response body JSON) to the local cache.
+        /// v2：与 GlobalInfo 缓存一致改存完整响应体，读取端统一走 ToHttpJsonResultData 解析。
         /// </remarks>
-        /// <param name="dataJson">应用版本信息JSON字符串 / Application version info JSON string</param>
-        public static void SaveAppVersionInfo(string dataJson)
+        /// <param name="responseJson">应用版本信息完整响应JSON字符串 / Application version full response JSON string</param>
+        public static void SaveAppVersionInfo(string responseJson)
         {
-            SaveString(AppVersionKey, dataJson);
+            SaveString(AppVersionKey, responseJson);
         }
 
         /// <summary>
@@ -109,14 +110,20 @@ namespace GameFrameX.Startup.Runtime
         public static bool TryGetCachedAppVersionInfo(out ResponseGameAppVersion gameAppVersion)
         {
             gameAppVersion = null;
-            if (!TryGetString(AppVersionKey, out var dataJson))
+            if (!TryGetString(AppVersionKey, out var responseJson))
             {
                 return false;
             }
 
             try
             {
-                gameAppVersion = Utility.Json.ToObject<ResponseGameAppVersion>(dataJson);
+                var cachedResult = responseJson.ToHttpJsonResultData<ResponseGameAppVersion>();
+                if (!cachedResult.IsSuccess)
+                {
+                    return false;
+                }
+
+                gameAppVersion = cachedResult.Data;
                 return gameAppVersion != null;
             }
             catch (Exception exception)
@@ -127,15 +134,16 @@ namespace GameFrameX.Startup.Runtime
         }
 
         /// <summary>
-        /// 保存资源包版本信息到缓存。
+        /// 保存资源包版本信息到缓存（完整响应体 JSON）。
         /// </summary>
         /// <remarks>
-        /// Saves the asset package version info to the local cache.
+        /// Saves the asset package version info (full response body JSON) to the local cache.
+        /// v2：与 GlobalInfo 缓存一致改存完整响应体，读取端统一走 ToHttpJsonResultData 解析。
         /// </remarks>
-        /// <param name="dataJson">资源包版本信息JSON字符串 / Asset package version info JSON string</param>
-        public static void SaveAssetPackageVersionInfo(string dataJson)
+        /// <param name="responseJson">资源包版本信息完整响应JSON字符串 / Asset package version full response JSON string</param>
+        public static void SaveAssetPackageVersionInfo(string responseJson)
         {
-            SaveString(AssetPackageVersionKey, dataJson);
+            SaveString(AssetPackageVersionKey, responseJson);
         }
 
         /// <summary>
@@ -148,20 +156,20 @@ namespace GameFrameX.Startup.Runtime
         /// <returns>如果缓存存在且成功应用则返回 <c>true</c>；否则返回 <c>false</c> / <c>true</c> if cache exists and is successfully applied; otherwise <c>false</c></returns>
         public static bool TryApplyCachedAssetPackageVersionInfo(IFsm<IProcedureManager> procedureOwner)
         {
-            if (!TryGetString(AssetPackageVersionKey, out var dataJson))
+            if (!TryGetString(AssetPackageVersionKey, out var responseJson))
             {
                 return false;
             }
 
             try
             {
-                var packageVersion = Utility.Json.ToObject<ResponseGameAssetPackageVersion>(dataJson);
-                if (packageVersion == null)
+                var cachedResult = responseJson.ToHttpJsonResultData<ResponseGameAssetPackageVersion>();
+                if (!cachedResult.IsSuccess || cachedResult.Data == null)
                 {
                     return false;
                 }
 
-                ApplyAssetPackageVersionInfo(procedureOwner, packageVersion);
+                ApplyAssetPackageVersionInfo(procedureOwner, cachedResult.Data);
                 return true;
             }
             catch (Exception exception)
