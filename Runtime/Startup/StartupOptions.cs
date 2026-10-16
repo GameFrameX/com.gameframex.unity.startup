@@ -5,9 +5,10 @@ namespace GameFrameX.Startup.Runtime
 {
     /// <summary>
     /// 启动流程配置资产。所有项目可变项（资源模式、URL 主备列表、热更入口、HTTP 公共参数、UI 资源路径）通过此 SO 注入。
+    /// 支持继承：项目可派生本类追加自有字段，子类序列化字段同样会出现在 Inspector。
     /// </summary>
     [CreateAssetMenu(menuName = "GameFrameX/Startup Options", fileName = "StartupOptions")]
-    public sealed class StartupOptions : ScriptableObject
+    public class StartupOptions : ScriptableObject
     {
         [Header("Admin")] [Tooltip("GameFrameX 管理后台的租户ID")]
         public string GameFrameXApiKey = "";
@@ -29,6 +30,18 @@ namespace GameFrameX.Startup.Runtime
 
         [Tooltip("是否跳过远程启动请求（全局信息、App 版本、资源包版本）。WebGL 单机等无后端场景启用，直接进入本地资源初始化。")]
         public bool SkipRemoteStartupRequests = false;
+
+        [Header("iOS Network Gate")] [Tooltip("iOS 首次联网授权探测 URL。启动流程在首个业务请求前循环探测该地址直到网络可用（含仅 WLAN 用户）。留空则跳过门禁。")]
+        public string IOSNetworkProbeUrl = "https://www.bing.com/favicon.ico";
+
+        [Tooltip("单次探测请求超时秒数。需覆盖用户处理系统授权弹窗的时间，避免过早放行。")]
+        public int IOSNetworkProbeTimeoutSeconds = 15;
+
+        [Tooltip("探测失败后的重试间隔毫秒数。")]
+        public int IOSNetworkProbeRetryDelayMs = 2000;
+
+        [Tooltip("授权状态正常但探测连续失败多少次后放行，交由后续流程自身的重试兜底。")]
+        public int IOSNetworkProbeMaxFailCount = 3;
 
         [Header("Hotfix")] [Tooltip("Hotfix 程序集名，传给 IHotfixLauncher 使用。")]
         public string HotfixAssemblyName = "Unity.Hotfix";

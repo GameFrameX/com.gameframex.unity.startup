@@ -26,6 +26,7 @@ namespace GameFrameX.Startup.Runtime.Tests
         public IEnumerator WaitForIOSNetworkAsync_EmptyProbeUrl_CompletesImmediately() => UniTask.ToCoroutine(async () =>
         {
             var options = ScriptableObject.CreateInstance<StartupOptions>();
+            options.IOSNetworkProbeUrl = string.Empty;
             var uiHandler = new MockUIHandler();
 
             await StartupNetworkGate.WaitForIOSNetworkAsync(options, uiHandler);

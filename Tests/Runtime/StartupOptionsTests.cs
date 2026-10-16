@@ -32,6 +32,12 @@ namespace GameFrameX.Startup.Runtime.Tests
             Assert.AreEqual(3000, options.RetryDelayMs);
             Assert.IsFalse(options.SkipRemoteStartupRequests);
 
+            // iOS Network Gate
+            Assert.AreEqual("https://www.bing.com/favicon.ico", options.IOSNetworkProbeUrl);
+            Assert.AreEqual(15, options.IOSNetworkProbeTimeoutSeconds);
+            Assert.AreEqual(2000, options.IOSNetworkProbeRetryDelayMs);
+            Assert.AreEqual(3, options.IOSNetworkProbeMaxFailCount);
+
             // Hotfix
             Assert.AreEqual("Unity.Hotfix", options.HotfixAssemblyName);
             Assert.AreEqual("Hotfix.HotfixLauncher", options.HotfixEntryTypeName);
@@ -65,11 +71,26 @@ namespace GameFrameX.Startup.Runtime.Tests
         }
 
         [Test]
-        public void HasSixteenPublicFields()
+        public void HasTwentyPublicFields()
         {
             var publicFields = typeof(StartupOptions).GetFields(BindingFlags.Public | BindingFlags.Instance);
-            Assert.AreEqual(16, publicFields.Length,
-                "StartupOptions should expose exactly 16 public fields per spec §3.1.1");
+            Assert.AreEqual(20, publicFields.Length,
+                "StartupOptions should expose exactly 20 public fields (16 base + 4 iOS network gate)");
+        }
+
+        [Test]
+        public void StartupOptions_SupportsInheritance()
+        {
+            var derived = ScriptableObject.CreateInstance<DerivedStartupOptions>();
+
+            Assert.IsInstanceOf<StartupOptions>(derived);
+            Assert.AreEqual(EPlayMode.EditorSimulateMode, derived.GamePlayMode, "子类实例应保留基类字段默认值");
+            Assert.AreEqual("custom", derived.ProjectSpecificField);
+        }
+
+        private sealed class DerivedStartupOptions : StartupOptions
+        {
+            public string ProjectSpecificField = "custom";
         }
 
         [Test]
