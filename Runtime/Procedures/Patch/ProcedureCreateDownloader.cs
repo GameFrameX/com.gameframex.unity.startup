@@ -1,4 +1,5 @@
 using GameFrameX.Asset.Runtime;
+using Cysharp.Threading.Tasks;
 using GameFrameX.Event.Runtime;
 using GameFrameX.Fsm.Runtime;
 using GameFrameX.Procedure.Runtime;
@@ -17,11 +18,15 @@ namespace GameFrameX.Startup.Runtime
     internal sealed class ProcedureCreateDownloader : ProcedureBase
     {
         /// <inheritdoc />
-        protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
+        protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
-            CreateDownloader(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureCreateDownloader), () =>
+            {
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.CreateDownloader));
+                CreateDownloader(procedureOwner);
+                return UniTask.CompletedTask;
+            });
         }
 
         /// <summary>

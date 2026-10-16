@@ -40,7 +40,7 @@ namespace GameFrameX.Startup.Runtime.Tests
             _procedureManager.Initialize(_fsmManager, new ProcedureBase[] { new ProcedureLauncherState() });
 
             var procedureFsm = _fsmManager.GetFsm<IProcedureManager>();
-            InjectBlackBoard(procedureFsm, _options, _uiHandler);
+            InjectContext(procedureFsm, _options, _uiHandler);
 
             _procedureManager.StartProcedure<ProcedureLauncherState>();
 
@@ -59,7 +59,7 @@ namespace GameFrameX.Startup.Runtime.Tests
             _procedureManager.Initialize(_fsmManager, new ProcedureBase[] { launcher });
 
             var procedureFsm = _fsmManager.GetFsm<IProcedureManager>();
-            InjectBlackBoard(procedureFsm, _options, _uiHandler);
+            InjectContext(procedureFsm, _options, _uiHandler);
 
             _procedureManager.StartProcedure<ProcedureLauncherState>();
 
@@ -90,15 +90,12 @@ namespace GameFrameX.Startup.Runtime.Tests
             });
         });
 
-        private static void InjectBlackBoard(IFsm<IProcedureManager> fsm, StartupOptions options, IStartupUIHandler uiHandler)
+        private static void InjectContext(IFsm<IProcedureManager> fsm, StartupOptions options, IStartupUIHandler uiHandler)
         {
-            var optionsBox = ReferencePool.Acquire<VarObject>();
-            optionsBox.Value = options;
-            fsm.SetData(BlackBoardKeys.StartupOptions, optionsBox);
-
-            var uiHandlerBox = ReferencePool.Acquire<VarObject>();
-            uiHandlerBox.Value = uiHandler;
-            fsm.SetData(BlackBoardKeys.StartupUIHandler, uiHandlerBox);
+            var context = new StartupContext(options, uiHandler, new StubHotfixLauncher(), new UniTaskCompletionSource<StartupResult>(), new DefaultStartupHttpParamsProvider());
+            var contextBox = ReferencePool.Acquire<VarObject>();
+            contextBox.Value = context;
+            fsm.SetData(BlackBoardKeys.StartupContext, contextBox);
         }
 
         private sealed class MockUIHandler : IStartupUIHandler
@@ -146,6 +143,14 @@ namespace GameFrameX.Startup.Runtime.Tests
             public void Dispose()
             {
                 Interlocked.Increment(ref _disposeCallCount);
+            }
+        }
+
+        private sealed class StubHotfixLauncher : IHotfixLauncher
+        {
+            public UniTask<HotfixLaunchResult> StartAsync(StartupOptions options)
+            {
+                return UniTask.FromResult(HotfixLaunchResult.Succeed());
             }
         }
     }

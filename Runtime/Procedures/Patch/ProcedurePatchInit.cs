@@ -19,7 +19,7 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            await InitPatchAsync(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedurePatchInit), () => InitPatchAsync(procedureOwner));
         }
 
         /// <summary>

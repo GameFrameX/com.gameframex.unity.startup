@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameFrameX.Event.Runtime;
@@ -23,6 +24,26 @@ namespace GameFrameX.Startup.Runtime
         public const string GameFrameXTenantSecretHeader = "GameFrameX-Tenant-Secret";
 
         /// <summary>
+        /// 从流程所有者中获取启动上下文。
+        /// </summary>
+        /// <remarks>
+        /// Gets the startup context from the procedure owner. Throws a descriptive exception when the context has
+        /// not been injected, i.e. the procedure FSM was not started through StartupRunner.Run.
+        /// </remarks>
+        /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
+        /// <returns>启动上下文实例 / Startup context instance</returns>
+        public static StartupContext GetContext(IFsm<IProcedureManager> procedureOwner)
+        {
+            var contextBox = procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupContext);
+            if (contextBox != null && contextBox.Value is StartupContext context)
+            {
+                return context;
+            }
+
+            throw new GameFrameworkException("Startup context is missing from the procedure FSM blackboard (key: " + BlackBoardKeys.StartupContext + "). Start the flow via StartupRunner.Run so the context gets injected.");
+        }
+
+        /// <summary>
         /// 从流程所有者中获取启动选项。
         /// </summary>
         /// <remarks>
@@ -32,7 +53,7 @@ namespace GameFrameX.Startup.Runtime
         /// <returns>启动选项实例 / Startup options instance</returns>
         public static StartupOptions GetOptions(IFsm<IProcedureManager> procedureOwner)
         {
-            return procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupOptions).Value as StartupOptions;
+            return GetContext(procedureOwner).Options;
         }
 
         /// <summary>
@@ -45,7 +66,7 @@ namespace GameFrameX.Startup.Runtime
         /// <returns>启动界面处理器实例 / Startup UI handler instance</returns>
         public static IStartupUIHandler GetUIHandler(IFsm<IProcedureManager> procedureOwner)
         {
-            return procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupUIHandler).Value as IStartupUIHandler;
+            return GetContext(procedureOwner).UIHandler;
         }
 
         /// <summary>
@@ -58,21 +79,45 @@ namespace GameFrameX.Startup.Runtime
         /// <returns>异步结果完成源 / Async result completion source</returns>
         public static UniTaskCompletionSource<StartupResult> GetCompletionSource(IFsm<IProcedureManager> procedureOwner)
         {
-            return procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupCompletionSource).Value as UniTaskCompletionSource<StartupResult>;
+            return GetContext(procedureOwner).CompletionSource;
         }
 
         /// <summary>
-        /// 从流程所有者中获取 HTTP 参数提供者。
+        /// 从流程所有者中获取 HTTP 参数提供器。
         /// </summary>
         /// <remarks>
-        /// Gets the HTTP params provider from the procedure owner. Returns default provider if not set.
+        /// Gets the HTTP params provider from the procedure owner. Run 时已保证非空。
         /// </remarks>
         /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
-        /// <returns>HTTP 参数提供者实例 / HTTP params provider instance</returns>
+        /// <returns>HTTP 参数提供器实例 / HTTP params provider instance</returns>
         public static IStartupHttpParamsProvider GetHttpParamsProvider(IFsm<IProcedureManager> procedureOwner)
         {
-            var providerBox = procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupHttpParamsProvider);
-            return providerBox?.Value as IStartupHttpParamsProvider ?? new DefaultStartupHttpParamsProvider();
+            return GetContext(procedureOwner).HttpParamsProvider;
+        }
+
+        /// <summary>
+        /// 在异常兜底内执行流程异步主体。捕获任何预期外异常并路由为启动失败，
+        /// 保证 Run 的 awaiter 永远收到结果而不是永久挂起。
+        /// </summary>
+        /// <remarks>
+        /// Runs the procedure body with an exception guard. Any unexpected exception is routed to
+        /// CompleteFailure so the awaiter of StartupRunner.Run always receives a result instead of hanging.
+        /// </remarks>
+        /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
+        /// <param name="procedureName">流程名，用于失败诊断 / Procedure name for failure diagnostics</param>
+        /// <param name="body">流程异步主体 / Async procedure body</param>
+        /// <returns>兜底执行协程 / Guarded execution coroutine</returns>
+        public static async UniTask RunGuardedAsync(IFsm<IProcedureManager> procedureOwner, string procedureName, Func<UniTask> body)
+        {
+            try
+            {
+                await body();
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception);
+                CompleteFailure(procedureOwner, procedureName, string.Empty, exception.Message);
+            }
         }
 
         /// <summary>
@@ -162,9 +207,36 @@ namespace GameFrameX.Startup.Runtime
         public static void CompleteFailure(IFsm<IProcedureManager> procedureOwner, string procedureName, string failedUrl, string errorMessage)
         {
             var result = StartupResult.Fail(procedureName, failedUrl, errorMessage);
-            GetUIHandler(procedureOwner)?.SetTipText(errorMessage);
-            GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
-            GetCompletionSource(procedureOwner)?.TrySetResult(result);
+
+            // 失败收尾是挂起兜底的最后出口：任何通知异常都不能阻止 TCS complete，否则 awaiter 永挂。
+            try
+            {
+                GetUIHandler(procedureOwner)?.SetTipText(errorMessage);
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupFailedEventArgs.Create(procedureName, failedUrl, errorMessage));
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception);
+            }
+
+            TrySetResult(procedureOwner, result);
+        }
+
+        private static void TrySetResult(IFsm<IProcedureManager> procedureOwner, StartupResult result)
+        {
+            UniTaskCompletionSource<StartupResult> completionSource = null;
+            try
+            {
+                completionSource = GetCompletionSource(procedureOwner);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception);
+            }
+
+            // context 不可用（注入缺失/损坏）时退回 StartupRunner 持有的完成源，保证 awaiter 一定收到结果
+            completionSource = completionSource ?? StartupRunner.ActiveCompletionSource;
+            completionSource?.TrySetResult(result);
         }
 
         /// <summary>
@@ -172,12 +244,21 @@ namespace GameFrameX.Startup.Runtime
         /// </summary>
         /// <remarks>
         /// Completes the startup success procedure, fires success event and sets result.
+        /// 事件是通知、结果是契约：通知基础设施异常只记录日志，不得把成功结果翻转为失败。
         /// </remarks>
         /// <param name="procedureOwner">流程所有者 / Procedure owner</param>
         public static void CompleteSuccess(IFsm<IProcedureManager> procedureOwner)
         {
-            GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupCompletedEventArgs.Create());
-            GetCompletionSource(procedureOwner)?.TrySetResult(StartupResult.Succeed());
+            try
+            {
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(procedureOwner, StartupCompletedEventArgs.Create());
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception);
+            }
+
+            TrySetResult(procedureOwner, StartupResult.Succeed());
         }
 
         /// <summary>
@@ -188,7 +269,7 @@ namespace GameFrameX.Startup.Runtime
         /// </remarks>
         /// <param name="uiHandler">界面处理器 / UI handler</param>
         /// <param name="currentBytes">当前已下载字节数 / Current downloaded bytes</param>
-        /// <param name="totalBytes">总字节数 / Total bytes</param>
+        /// <param name="totalBytes">总下载字节数 / Total downloaded bytes</param>
         public static void SetDownloadProgress(IStartupUIHandler uiHandler, long currentBytes, long totalBytes)
         {
             var progress = totalBytes <= 0 ? 0f : currentBytes / (totalBytes * 1f);

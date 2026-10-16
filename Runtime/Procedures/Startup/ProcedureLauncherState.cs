@@ -18,22 +18,14 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-
-            await StartLauncherUIAsync(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureLauncherState), () => StartLauncherUIAsync(procedureOwner));
         }
 
         private async UniTask StartLauncherUIAsync(IFsm<IProcedureManager> procedureOwner)
         {
-            var optionsBox = procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupOptions);
-            var uiHandlerBox = procedureOwner.GetData<VarObject>(BlackBoardKeys.StartupUIHandler);
-
-            var options = optionsBox.Value as StartupOptions;
-            var uiHandler = uiHandlerBox.Value as IStartupUIHandler;
-
-            if (options == null || uiHandler == null)
-            {
-                return;
-            }
+            var context = StartupProcedureUtility.GetContext(procedureOwner);
+            var options = context.Options;
+            var uiHandler = context.UIHandler;
 
             var webComponent = GameEntry.GetComponent<WebComponent>();
             webComponent.RemoveBaseHeader(StartupProcedureUtility.GameFrameXApiKeyHeader);
@@ -45,6 +37,9 @@ namespace GameFrameX.Startup.Runtime
             {
                 webComponent.AddBaseHeader(header.Key, header.Value);
             }
+
+            // iOS 首次联网授权门禁：放行后再进入首个业务请求，确保获取全局信息时必然有网络
+            await StartupNetworkGate.WaitForIOSNetworkAsync(options, uiHandler);
 
             await uiHandler.StartAsync(options.LauncherUIResName);
 

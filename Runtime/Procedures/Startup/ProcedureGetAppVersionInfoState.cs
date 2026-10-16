@@ -23,6 +23,11 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureGetAppVersionInfoState), () => EnterAsync(procedureOwner));
+        }
+
+        private async UniTask EnterAsync(IFsm<IProcedureManager> procedureOwner)
+        {
             var assetComponent = GameEntry.GetComponent<AssetComponent>();
             if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
@@ -54,16 +59,15 @@ namespace GameFrameX.Startup.Runtime
                 try
                 {
                     var json = await GameEntry.GetComponent<WebComponent>().PostToString(GameEntry.GetComponent<GlobalConfigComponent>().CheckAppVersionUrl, jsonParams);
-                    var httpJsonResult = Utility.Json.ToObject<HttpJsonResult>(json.Result);
-                    if (httpJsonResult.Code <= 0)
+                    var responseAppVersion = json.Result.ToHttpJsonResultData<ResponseGameAppVersion>();
+                    if (responseAppVersion.IsSuccess)
                     {
-                        var gameAppVersion = Utility.Json.ToObject<ResponseGameAppVersion>(httpJsonResult.Data);
-                        StartupNetworkCacheUtility.SaveAppVersionInfo(httpJsonResult.Data);
-                        await ApplyAppVersionInfoAsync(procedureOwner, uiHandler, gameAppVersion);
+                        StartupNetworkCacheUtility.SaveAppVersionInfo(json.Result);
+                        await ApplyAppVersionInfoAsync(procedureOwner, uiHandler, responseAppVersion.Data);
                         return;
                     }
 
-                    Log.Error("Get app version returned code " + httpJsonResult.Code);
+                    Log.Error("Get app version returned code " + responseAppVersion.Code + " " + responseAppVersion.Message);
                 }
                 catch (Exception exception)
                 {

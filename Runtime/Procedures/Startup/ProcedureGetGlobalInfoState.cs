@@ -24,6 +24,11 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureGetGlobalInfoState), () => EnterAsync(procedureOwner));
+        }
+
+        private async UniTask EnterAsync(IFsm<IProcedureManager> procedureOwner)
+        {
             var assetComponent = GameEntry.GetComponent<AssetComponent>();
             if (assetComponent.GamePlayMode == EPlayMode.EditorSimulateMode)
             {
@@ -40,7 +45,7 @@ namespace GameFrameX.Startup.Runtime
             }
 
             var options = StartupProcedureUtility.GetOptions(procedureOwner);
-            if (options != null && options.SkipRemoteStartupRequests)
+            if (options.SkipRemoteStartupRequests)
             {
                 Debug.Log("Skip remote startup requests option enabled, skip remote startup requests.");
                 ChangeState<ProcedurePatchInit>(procedureOwner);

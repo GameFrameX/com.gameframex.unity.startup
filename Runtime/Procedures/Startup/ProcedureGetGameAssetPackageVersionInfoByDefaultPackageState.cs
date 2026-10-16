@@ -21,7 +21,7 @@ namespace GameFrameX.Startup.Runtime
         protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            await GetGameAssetPackageVersionInfoAsync(procedureOwner);
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureGetGameAssetPackageVersionInfoByDefaultPackageState), () => GetGameAssetPackageVersionInfoAsync(procedureOwner));
         }
 
         /// <summary>
@@ -45,17 +45,16 @@ namespace GameFrameX.Startup.Runtime
                 try
                 {
                     var json = await GameEntry.GetComponent<WebComponent>().PostToString(GameEntry.GetComponent<GlobalConfigComponent>().CheckResourceVersionUrl, jsonParams);
-                    var httpJsonResult = Utility.Json.ToObject<HttpJsonResult>(json.Result);
-                    if (httpJsonResult.Code <= 0)
+                    var packageVersionResult = json.Result.ToHttpJsonResultData<ResponseGameAssetPackageVersion>();
+                    if (packageVersionResult.IsSuccess)
                     {
-                        var packageVersion = Utility.Json.ToObject<ResponseGameAssetPackageVersion>(httpJsonResult.Data);
-                        StartupNetworkCacheUtility.ApplyAssetPackageVersionInfo(procedureOwner, packageVersion);
-                        StartupNetworkCacheUtility.SaveAssetPackageVersionInfo(httpJsonResult.Data);
+                        StartupNetworkCacheUtility.ApplyAssetPackageVersionInfo(procedureOwner, packageVersionResult.Data);
+                        StartupNetworkCacheUtility.SaveAssetPackageVersionInfo(json.Result);
                         ChangeState<ProcedurePatchInit>(procedureOwner);
                         return;
                     }
 
-                    Log.Error("Get asset package version returned code " + httpJsonResult.Code);
+                    Log.Error("Get asset package version returned code " + packageVersionResult.Code + " " + packageVersionResult.Message);
                 }
                 catch (Exception exception)
                 {

@@ -18,11 +18,14 @@ namespace GameFrameX.Startup.Runtime
     internal sealed class ProcedureDownloadWebFiles : ProcedureBase
     {
         /// <inheritdoc />
-        protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
+        protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
-            BeginDownload(procedureOwner).ToUniTask();
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureDownloadWebFiles), () =>
+            {
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.DownloadWebFiles));
+                return BeginDownload(procedureOwner).ToUniTask();
+            });
         }
 
         /// <summary>

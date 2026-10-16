@@ -22,11 +22,14 @@ namespace GameFrameX.Startup.Runtime
     internal sealed class ProcedureUpdateStaticVersion : ProcedureBase
     {
         /// <inheritdoc />
-        protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
+        protected override async void OnEnter(IFsm<IProcedureManager> procedureOwner)
         {
             base.OnEnter(procedureOwner);
-            GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateStaticVersion));
-            GetStaticVersion(procedureOwner).ToUniTask();
+            await StartupProcedureUtility.RunGuardedAsync(procedureOwner, nameof(ProcedureUpdateStaticVersion), () =>
+            {
+                GameFrameworkEntry.GetModule<IEventManager>().Fire(this, AssetPatchStatesChangeEventArgs.Create(AssetComponent.BuildInPackageName, EPatchStates.UpdateStaticVersion));
+                return GetStaticVersion(procedureOwner).ToUniTask();
+            });
         }
 
         /// <summary>
