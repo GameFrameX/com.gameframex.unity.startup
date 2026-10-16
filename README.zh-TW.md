@@ -7,13 +7,14 @@
 ## 功能特性
 
 - **單行入口**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **配置驅動**：`StartupOptions` ScriptableObject，15 個欄位（資源模式、URL 列表、單機開關、熱更入口、HTTP 參數、UI 資源）
+- **配置驅動**：`StartupOptions` ScriptableObject，20 個欄位（資源模式、URL 列表、單機開關、熱更入口、HTTP 參數、UI 資源、iOS 網路門禁），支援繼承擴充專案自有欄位
 - **主備 failover**：`GlobalInfoUrls[]` 陣列 + `MaxAttemptsPerUrl` 重試策略
 - **UI 後端無關**：`IStartupUIHandler` 介面，相容 FairyGUI / UGUI / 自定義 UI
 - **熱更方案無關**：`IHotfixLauncher` 介面，相容 HybridCLR / 其他熱更方案
 - **雙軌完成通知**：`UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` 事件（兩條路徑都觸發）
 - **PlayMode 自適應**：`EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` 分支處理
 - **單機就緒**：`SkipRemoteStartupRequests` 選項跳過全部遠端啟動請求（全局資訊 / App 版本 / 資源包版本），適用於 WebGL 單機或無後端部署
+- **iOS 首啟網路門禁**：首個業務請求前循環探測觸發聯網授權（含僅 WLAN 使用者）；未授權持續引導，已授權但斷網有限重試後放行，確保取得全域資訊時必然有網路
 - **YooAsset 集成**：標準補丁流程（初始化 → 靜態版本 → 清單 → 下載 → 完成）
 - **不呼叫任何渠道 SDK**：Channel/SubChannel 欄位是純資料，無 SDK 依賴
 
@@ -50,6 +51,8 @@ Unity Editor 中：`Create > GameFrameX > Startup Options`。設定：
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共參數
 - `LauncherUIResName`：啟動 UI 資源路徑（預設 `UI/UILauncher`）
 - `SkipRemoteStartupRequests`：跳過全部遠端啟動請求（全局資訊 / App 版本 / 資源包版本）。WebGL 單機或無後端部署時啟用。
+- `IOSNetworkProbeUrl` 等 iOS 門禁參數：預設 bing 探測地址，留空跳過門禁
+- 設定類支援繼承：派生 `StartupOptions` 追加專案欄位，子類欄位同樣出現在 Inspector
 
 ### 2. 實作 UI 處理器
 
@@ -107,8 +110,8 @@ public class GameBootstrap : MonoBehaviour
 也可以透過事件訂閱解耦通知：
 
 ```csharp
-GameApp.Event.Subscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
-GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
+GameApp.Event.CheckSubscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
+GameApp.Event.CheckSubscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 ```
 
 ## API 參考
@@ -128,16 +131,15 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 | `UrlFailoverRunner` | URL 主備順序嘗試工具，支援單 URL 有界重試 |
 | `UrlAttemptResult` / `UrlFailoverResult` | URL 單次嘗試結果與最終 failover 結果值類型 |
 | `StartupHttpParams` | HTTP 公共參數容器，支援 JSON 序列化 |
+| `StartupContext` | 啟動上下文，聚合 options / UI / hotfix / 完成源 / HTTP 參數提供器，單 key 注入 FSM |
 
 ### FSM BlackBoard key
 
-包向 procedure FSM 注入 3 個固定 key 實現跨狀態資料共用：
+包向 procedure FSM 注入單個 `StartupContext`（聚合 options / UIHandler / HotfixLauncher / 完成源 / HTTP 參數提供器），所有 Procedure 透過 `StartupProcedureUtility.GetContext` 型別化讀取：
 
 | Key | 類型 | 內容 |
 |-----|------|------|
-| `__startup_options__` | `VarObject` | `StartupOptions` 實例 |
-| `__startup_ui_handler__` | `VarObject` | `IStartupUIHandler` 實例 |
-| `__startup_hotfix_launcher__` | `VarObject` | `IHotfixLauncher` 實例 |
+| `__startup_context__` | `VarObject` | `StartupContext` 實例 |
 
 常量位於 `GameFrameX.Startup.Runtime.Constants.BlackBoardKeys`。
 

@@ -7,13 +7,14 @@
 ## 機能特性
 
 - **一行エントリ**：`await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **設定駆動**：`StartupOptions` ScriptableObject、15 フィールド（リソースモード、URL リスト、スタンドアロントグル、熱更エントリ、HTTP パラメータ、UI リソース）
+- **設定駆動**：`StartupOptions` ScriptableObject、20 フィールド（リソースモード、URL リスト、スタンドアロントグル、熱更エントリ、HTTP パラメータ、UI リソース、iOS ネットワークゲート）。継承してプロジェクト独自フィールドを追加可能
 - **主備 failover**：`GlobalInfoUrls[]` 配列 + `MaxAttemptsPerUrl` リトライポリシー
 - **UI バックエンド非依存**：`IStartupUIHandler` インターフェース、FairyGUI / UGUI / カスタム UI に対応
 - **ホットフィックス方案非依存**：`IHotfixLauncher` インターフェース、HybridCLR / 他のホットフィックス方案に対応
 - **二軌完了通知**：`UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` イベント（両方の経路がトリガー）
 - **PlayMode 適応**：`EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` 分岐処理
 - **スタンドアロン対応**：`SkipRemoteStartupRequests` オプションは全リモート起動リクエスト（グローバル情報 / App バージョン / アセットパッケージバージョン）をスキップ。WebGL スタンドアロンやバックエンド不要のデプロイ向け。
+- **iOS 初回起動ネットワークゲート**：最初のビジネスリクエスト前にネットワークが実際に利用可能になるまで探测（WLAN のみのユーザーを含む）。未許可なら継続ガイド、許可済みだがオフラインなら有限リトライ後に放行
 - **YooAsset 統合**：標準パッチフロー（初期化 → 静的バージョン → マニフェスト → ダウンロード → 完了）
 - **チャネル SDK を呼ばない**：Channel/SubChannel フィールドは純データ、SDK 依存なし
 
@@ -50,6 +51,8 @@ Unity Editor で：`Create > GameFrameX > Startup Options`。設定：
 - `PackageName` / `Channel` / `SubChannel`：HTTP 公共パラメータ
 - `LauncherUIResName`：起動 UI リソースパス（デフォルト `UI/UILauncher`）
 - `SkipRemoteStartupRequests`：全リモート起動リクエスト（グローバル情報 / App バージョン / アセットパッケージバージョン）をスキップ。WebGL スタンドアロンやバックエンド不要のデプロイ時に有効化。
+- `IOSNetworkProbeUrl` など iOS ゲートパラメータ：デフォルトは bing 探測 URL、空欄でゲートをスキップ
+- 設定クラスは継承可能：`StartupOptions` を派生してプロジェクトフィールドを追加すると、サブクラスのフィールドも Inspector に表示
 
 ### 2. UI ハンドラの実装
 
@@ -107,8 +110,8 @@ public class GameBootstrap : MonoBehaviour
 イベントサブスクリプションで通知を分離することもできます：
 
 ```csharp
-GameApp.Event.Subscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
-GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
+GameApp.Event.CheckSubscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
+GameApp.Event.CheckSubscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 ```
 
 ## API リファレンス
@@ -128,16 +131,15 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 | `UrlFailoverRunner` | URL 主備順序試行ヘルパー、境界付きリトライ対応 |
 | `UrlAttemptResult` / `UrlFailoverResult` | URL 単一試行結果と最終 failover 結果の値型 |
 | `StartupHttpParams` | HTTP 公共パラメータコンテナ、JSON シリアライズ対応 |
+| `StartupContext` | 起動コンテキスト。options / UI / hotfix / 完了ソース / HTTP パラメータプロバイダを集約し、単一キーで FSM に注入 |
 
 ### FSM BlackBoard key
 
-パッケージは procedure FSM に 3 つの固定 key を注入してクロス状態データ共有を実現：
+パッケージは procedure FSM に単一の `StartupContext`（options / UIHandler / HotfixLauncher / 完了ソース / HTTP パラメータプロバイダを集約）を注入し、すべての Procedure は `StartupProcedureUtility.GetContext` で型付き読み取り：
 
 | Key | 型 | 内容 |
 |-----|------|------|
-| `__startup_options__` | `VarObject` | `StartupOptions` インスタンス |
-| `__startup_ui_handler__` | `VarObject` | `IStartupUIHandler` インスタンス |
-| `__startup_hotfix_launcher__` | `VarObject` | `IHotfixLauncher` インスタンス |
+| `__startup_context__` | `VarObject` | `StartupContext` インスタンス |
 
 定数は `GameFrameX.Startup.Runtime.Constants.BlackBoardKeys` に配置。
 

@@ -7,13 +7,14 @@
 ## Features
 
 - **One-line entry**: `await StartupRunner.Run(options, uiHandler, hotfixLauncher)`
-- **Config-driven**: `StartupOptions` ScriptableObject with 15 fields (asset play mode, URL list, standalone toggle, hotfix entry, HTTP params, UI resource)
+- **Config-driven**: `StartupOptions` ScriptableObject with 20 fields (asset play mode, URL list, standalone toggle, hotfix entry, HTTP params, UI resource, iOS network gate); inheritable for project-specific fields
 - **Primary-backup failover**: `GlobalInfoUrls[]` with `MaxAttemptsPerUrl` retry policy
 - **Backend-agnostic UI**: `IStartupUIHandler` interface — works with FairyGUI, UGUI, or any custom UI
 - **Backend-agnostic hotfix**: `IHotfixLauncher` interface — works with HybridCLR or any hotfix solution
 - **Dual-track completion**: `UniTask<StartupResult>` await + `StartupCompleted/FailedEventArgs` events (both fire)
 - **PlayMode-aware**: `EditorSimulateMode` / `OfflinePlayMode` / `HostPlayMode` / `WebPlayMode` branches
 - **Standalone-ready**: `SkipRemoteStartupRequests` option skips all remote startup requests (global info / app version / asset package version) for WebGL standalone or backend-less deployments
+- **iOS first-launch network gate**: probes until the network is actually usable (including WLAN-only users) before the first business request; keeps guiding while unauthorized, releases after bounded retries when authorized but offline
 - **YooAsset integration**: Standard patch flow (init → static version → manifest → download → done)
 - **No channel SDK calls**: Channel/SubChannel fields are pure data, no SDK dependencies
 
@@ -50,6 +51,8 @@ In Unity Editor: `Create > GameFrameX > Startup Options`. Configure:
 - `PackageName` / `Channel` / `SubChannel`: HTTP public params
 - `LauncherUIResName`: UI resource path (default `UI/UILauncher`)
 - `SkipRemoteStartupRequests`: skip all remote startup requests (global info / app version / asset package version). Enable for WebGL standalone or backend-less deployments.
+- `IOSNetworkProbeUrl` and related gate params: defaults to a bing probe URL; leave empty to skip the gate
+- The config class is inheritable: derive from `StartupOptions` to add project fields, subclass fields appear in the Inspector too
 
 ### 2. Implement the UI handler
 
@@ -107,8 +110,8 @@ public class GameBootstrap : MonoBehaviour
 Alternatively, subscribe to events for decoupled notification:
 
 ```csharp
-GameApp.Event.Subscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
-GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
+GameApp.Event.CheckSubscribe(StartupCompletedEventArgs.EventId, OnStartupCompleted);
+GameApp.Event.CheckSubscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 ```
 
 ## API Reference
@@ -128,16 +131,15 @@ GameApp.Event.Subscribe(StartupFailedEventArgs.EventId, OnStartupFailed);
 | `UrlFailoverRunner` | Ordered URL failover helper with bounded retry attempts |
 | `UrlAttemptResult` / `UrlFailoverResult` | Value structs for failover attempt and final results |
 | `StartupHttpParams` | HTTP base parameter container with JSON serialization |
+| `StartupContext` | Startup context aggregating options / UI / hotfix / completion source / HTTP params provider, injected under a single FSM key |
 
-### FSM BlackBoard keys
+### FSM BlackBoard key
 
-The package injects 3 fixed keys into the procedure FSM for cross-state data sharing:
+The package injects a single `StartupContext` (aggregating options / UIHandler / HotfixLauncher / completion source / HTTP params provider) into the procedure FSM; every procedure reads it through `StartupProcedureUtility.GetContext`:
 
 | Key | Type | Content |
 |-----|------|---------|
-| `__startup_options__` | `VarObject` | The `StartupOptions` instance |
-| `__startup_ui_handler__` | `VarObject` | The `IStartupUIHandler` instance |
-| `__startup_hotfix_launcher__` | `VarObject` | The `IHotfixLauncher` instance |
+| `__startup_context__` | `VarObject` | The `StartupContext` instance |
 
 Constants available at `GameFrameX.Startup.Runtime.Constants.BlackBoardKeys`.
 
