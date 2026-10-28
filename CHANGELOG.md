@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/gameframex/com.gameframex.unity.startup/compare/2.0.0...2.0.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **startup:** 关闭 Domain Reload 时重置启动静态状态 ([a1d3db7](https://github.com/gameframex/com.gameframex.unity.startup/commit/a1d3db7fc549abe77b5188827ab216bcfc892798))
+
 # [2.0.0](https://github.com/gameframex/com.gameframex.unity.startup/compare/1.5.3...2.0.0) (2026-10-16)
 
 
