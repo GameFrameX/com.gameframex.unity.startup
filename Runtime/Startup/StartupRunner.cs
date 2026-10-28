@@ -32,8 +32,17 @@ namespace GameFrameX.Startup.Runtime
         /// </summary>
         internal static UniTaskCompletionSource<StartupResult> ActiveCompletionSource { get; set; }
 
-
         /// <summary>
+        /// 会话边界对称重置（关闭 Domain Reload 的快速进 Play）：每次进入 Play 前把
+        /// _hasStarted / ActiveCompletionSource 归零，等价于全新 Domain 的初始状态。
+        /// </summary>
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSessionStatics()
+        {
+            _hasStarted = false;
+            ActiveCompletionSource = null;
+        }
+
         /// 启动完整启动流程。
         /// </summary>
         /// <param name="options">配置资产，提供资源模式、URL 列表、热更入口、HTTP 参数等。</param>
